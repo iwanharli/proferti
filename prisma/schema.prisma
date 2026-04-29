@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Auth.js Models
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  
+  // Custom Proferti Fields
+  role          Role      @default(USER)
+  developer     Developer?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  USER
+  DEVELOPER
+  ADMIN
+}
+
+// Proferti Business Models
+model Developer {
+  id          String    @id @default(cuid())
+  name        String
+  logo        String?
+  description String?
+  website     String?
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+  projects    Project[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Project {
+  id          String    @id @default(cuid())
+  name        String
+  location    String
+  description String?
+  startPrice  Float
+  promo       String?
+  image       String?   // Featured image
+  gallery     ProjectImage[]
+  developerId String
+  developer   Developer @relation(fields: [developerId], references: [id])
+  status      ProjectStatus @default(AVAILABLE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model ProjectImage {
+  id        String  @id @default(cuid())
+  url       String
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+enum ProjectStatus {
+  AVAILABLE
+  SOLD_OUT
+  COMING_SOON
+}
