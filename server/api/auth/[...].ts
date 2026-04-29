@@ -1,7 +1,7 @@
 import { NuxtAuthHandler } from '#auth'
 import GithubProvider from 'next-auth/providers/github'
 import { PrismaAdapter } from '@auth/prisma-adapter'
-import type { AdapterUser } from 'next-auth/adapters'
+import type { AdapterUser } from '@auth/core/adapters'
 import { prisma } from '../../utils/prisma'
 
 export default NuxtAuthHandler({
@@ -19,15 +19,17 @@ export default NuxtAuthHandler({
   callbacks: {
     async session({ session, user }) {
       const u = user as AdapterUser
-      if (session.user && u?.id) {
-        session.user.id = u.id
+      const s = session as any
+      if (s.user && u?.id) {
+        s.user.id = u.id
         const db = await prisma.user.findUnique({
           where: { id: u.id },
           select: { role: true }
         })
-        session.user.role = db?.role ?? 'USER'
+        s.user.role = db?.role ?? 'USER'
       }
-      return session
+      return s
     }
   }
+
 })
