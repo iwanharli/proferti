@@ -1,57 +1,38 @@
-# Proferti - Premium Property Marketplace
+# Proferti Frontend (Nuxt 4)
 
-A modern, high-performance property marketplace platform built with Nuxt 4, designed for premium real estate investments.
+Frontend aplikasi Proferti menggunakan Nuxt 4 dengan desain premium dan sistem autentikasi terintegrasi.
 
-## 🚀 Technologies
-
+## Teknologi
 - **Framework**: [Nuxt 4](https://nuxt.com/)
 - **State Management**: [Pinia](https://pinia.vuejs.org/)
-- **Styling**: Vanilla CSS (Custom Design System)
+- **Database ORM**: [Prisma](https://www.prisma.io/)
+- **Authentication**: [sidebase/nuxt-auth](https://auth.sidebase.io/)
 - **Icons**: [Lucide Vue Next](https://lucide.dev/)
-- **Animations**: [GSAP](https://gsap.com/) & [DotLottie Vue](https://lottiefiles.com/)
-- **Auth**: [@sidebase/nuxt-auth](https://auth.sidebase.io/)
-- **SEO**: [@nuxtjs/seo](https://seo.nuxt.com/)
-- **Image**: [@nuxt/image](https://image.nuxt.com/)
 
-## 🛠️ Getting Started
-
-### Prerequisites
-
-- Node.js (v18.x or later)
-- npm or pnpm
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
+## Persiapan
+1. Instal dependensi:
    ```bash
    npm install
    ```
-3. Copy the environment variables:
+2. Pastikan file `.env` sudah dikonfigurasi mengikuti `.env.example`.
+3. Sinkronisasi Prisma Client (Tanpa merusak database Go):
    ```bash
-   cp .env.example .env
+   npx prisma generate
    ```
-4. Update the `.env` file with your credentials.
 
-### Development
-
-Start the development server:
+## Pengembangan
+Jalankan server pengembangan:
 ```bash
 npm run dev
 ```
+Aplikasi akan tersedia di `http://localhost:3000` (atau `3001` jika port 3000 terpakai).
 
-### Production
+## Integrasi Database
+Proyek ini berbagi database dengan **proferti-be** (Go). 
+- Semua perubahan skema database dilakukan melalui migrasi Go di repository `proferti-be`.
+- Frontend hanya menggunakan Prisma untuk membaca/menulis data dengan mapping yang sudah disesuaikan (`@map("t_...")` dan `@map("na_...")`).
 
-Build the application for production:
-```bash
-npm run build
-```
-
-Preview the production build:
-```bash
-npm run preview
-```
-
-## 📄 License
-
-MIT
+## Fitur Utama
+- **Premium Design System**: Menggunakan glassmorphism dan animasi modern.
+- **Unified Auth**: Login menggunakan GitHub OAuth yang tersimpan di PostgreSQL.
+- **Marketplace Listing**: Menampilkan data properti langsung dari database.
