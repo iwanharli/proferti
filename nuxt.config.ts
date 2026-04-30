@@ -29,6 +29,12 @@ export default defineNuxtConfig({
       isEnabled: false
     }
   },
+  routeRules: {
+    '/api/projects/**': { proxy: 'http://localhost:8080/api/projects/**' },
+    '/api/projects': { proxy: 'http://localhost:8080/api/projects' },
+    '/api/developers/**': { proxy: 'http://localhost:8080/api/developers/**' },
+    '/api/developers': { proxy: 'http://localhost:8080/api/developers' }
+  },
 
 
 
