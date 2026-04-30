@@ -17,7 +17,7 @@
           <a href="#footer-kontak" class="nav-link">Kontak</a>
         </div>
         <div class="nav-right">
-          <button type="button" class="nav-btn-link" @click="signInGithub">Masuk Developer</button>
+          <NuxtLink to="/login" class="nav-btn-link">Masuk Developer</NuxtLink>
           <NuxtLink to="/developer/register" class="btn btn-primary">Daftar Developer</NuxtLink>
         </div>
       </div>
