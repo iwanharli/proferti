@@ -3,7 +3,7 @@
     <nav class="subnav">
       <div class="container subnav-inner">
         <NuxtLink to="/" class="brand-link">&larr; Proferti</NuxtLink>
-        <span class="subnav-title">Cari Proyek</span>
+        <span class="subnav-title">Cari Rumah</span>
       </div>
     </nav>
 
@@ -43,7 +43,7 @@
 
     <section class="results-section">
       <div class="container">
-        <p v-if="pending" class="muted">Memuat proyek…</p>
+        <p v-if="pending" class="muted">Memuat rumah…</p>
         <p v-else-if="error" class="error">Tidak dapat memuat daftar. Periksa koneksi dan database Anda.</p>
         <template v-else-if="projects.length">
           <p class="result-count">{{ data?.pagination?.total ?? 0 }} hasil</p>
@@ -75,7 +75,7 @@
             </article>
           </div>
         </template>
-        <p v-else class="muted">Belum ada proyek atau filter terlalu ketat.</p>
+        <p v-else class="muted">Belum ada rumah atau filter terlalu ketat.</p>
       </div>
     </section>
   </div>
@@ -177,9 +177,9 @@ function clearFilters() {
 }
 
 useSeoMeta({
-  title: 'Cari proyek — Proferti',
+  title: 'Cari rumah — Proferti',
   description:
-    'Filter proyek perumahan menurut kota, harga band, dan developer. Proferti — marketplace developer terpercaya.'
+    'Filter rumah menurut kota, harga band, dan developer. Proferti — marketplace developer terpercaya.'
 })
 </script>
 

@@ -9,7 +9,7 @@ datasource db {
 
 // Auth.js Models
 model Account {
-  id                 String  @id @default(cuid()) @db.Uuid
+  id                 String  @id @default(uuid()) @db.Uuid
   userId             String  @map("user_id") @db.Uuid
   type               String
   provider           String
@@ -29,7 +29,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid()) @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
   sessionToken String   @unique @map("session_token")
   userId       String   @map("user_id") @db.Uuid
   expires      DateTime
@@ -39,7 +39,7 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid()) @db.Uuid
+  id            String    @id @default(uuid()) @db.Uuid
   name          String?
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
@@ -68,7 +68,7 @@ model VerificationToken {
 
 // Proferti Business Models
 model Developer {
-  id          String    @id @default(cuid()) @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
   name        String    @map("company_name")
   slug        String    @unique
   ownerName   String?   @map("owner_name")
@@ -87,7 +87,7 @@ model Developer {
 }
 
 model Project {
-  id          String    @id @default(cuid()) @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
   name        String    @map("project_name")
   location    String
   slug        String
@@ -107,7 +107,7 @@ model Project {
 
 
 model Gallery {
-  id        String   @id @default(cuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   projectId String   @map("project_id") @db.Uuid
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   image     String   @db.Text

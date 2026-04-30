@@ -41,6 +41,7 @@ async function main() {
     create: {
       userId: user1.id,
       name: 'BSD Land',
+      slug: 'bsd-land',
       description: 'Developer contoh — BSD City',
       website: 'https://example.com'
     },
@@ -52,6 +53,7 @@ async function main() {
     create: {
       userId: user2.id,
       name: 'Dago Hills',
+      slug: 'dago-hills',
       description: 'Developer contoh — Bandung',
       website: 'https://example.com'
     },
@@ -63,6 +65,7 @@ async function main() {
     create: {
       userId: user3.id,
       name: 'Cibubur Prime',
+      slug: 'cibubur-prime',
       description: 'Developer contoh — Jakarta',
       website: 'https://example.com'
     },
@@ -73,6 +76,7 @@ async function main() {
     {
       developerId: dev1.id,
       name: 'The Grand Residence',
+      slug: 'the-grand-residence',
       location: 'BSD City, Tangerang',
       description: 'Cluster premium dekat tol dan mall.',
       startPrice: 1_200_000_000,
@@ -84,6 +88,7 @@ async function main() {
     {
       developerId: dev2.id,
       name: 'Serene Hills Cluster',
+      slug: 'serene-hills-cluster',
       location: 'Dago, Bandung',
       description: 'Udara sejuk dengan view pegunungan.',
       startPrice: 850_000_000,
@@ -95,6 +100,7 @@ async function main() {
     {
       developerId: dev3.id,
       name: 'Modern Oasis',
+      slug: 'modern-oasis',
       location: 'Cibubur, Jakarta',
       description: 'Akses langsung ke corridor ekonomi timur.',
       startPrice: 1_500_000_000,
@@ -113,6 +119,7 @@ async function main() {
       await prisma.project.update({
         where: { id: existing.id },
         data: {
+          slug: p.slug,
           location: p.location,
           description: p.description,
           startPrice: p.startPrice,
@@ -126,7 +133,7 @@ async function main() {
     }
   }
 
-  console.log('Seed selesai: 3 developer, 3 proyek.')
+  console.log('Seed selesai: 3 developer, 3 rumah.')
 }
 
 main()
