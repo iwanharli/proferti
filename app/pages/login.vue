@@ -60,14 +60,23 @@ async function handleLogin() {
     const res = await signIn('credentials', {
       redirect: false,
       email: email.value,
-      password: password.value,
-      callbackUrl: '/'
+      password: password.value
     })
 
     if (res?.error) {
       errorMsg.value = 'Email atau password salah.'
-    } else if (res?.url) {
-      router.push('/')
+    } else {
+      // Tunggu sebentar agar session terupdate
+      const { data } = useAuth()
+      const user = data.value?.user as any
+      
+      if (user?.role === 'ADMIN') {
+        router.push('/admin/dashboard')
+      } else if (user?.role === 'DEVELOPER') {
+        router.push('/developer/dashboard')
+      } else {
+        router.push('/')
+      }
     }
   } catch (err) {
     errorMsg.value = 'Terjadi kesalahan sistem.'
