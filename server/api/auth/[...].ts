@@ -1,7 +1,7 @@
 import { NuxtAuthHandler } from '#auth'
 import GithubProvider from 'next-auth/providers/github'
 import { PrismaAdapter } from '@auth/prisma-adapter'
-import type { AdapterUser } from '@auth/core/adapters'
+import type { AdapterUser } from 'next-auth/adapters'
 import { prisma } from '../../utils/prisma'
 
 export default NuxtAuthHandler({

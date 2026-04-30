@@ -11,7 +11,7 @@
         </div>
         <div class="nav-center">
           <NuxtLink to="/" class="nav-link">Beranda</NuxtLink>
-          <NuxtLink to="/projects" class="nav-link">Cari Proyek</NuxtLink>
+          <NuxtLink to="/projects" class="nav-link">Cari Rumah</NuxtLink>
           <NuxtLink to="/developer/register" class="nav-link">Developer</NuxtLink>
           <a href="#cta-dev" class="nav-link">Tentang</a>
           <a href="#footer-kontak" class="nav-link">Kontak</a>
@@ -27,10 +27,10 @@
     <header class="hero">
       <div class="container hero-grid">
         <div class="hero-text" v-reveal>
-          <h1 class="headline">Temukan Proyek Rumah Terbaik dari <span class="text-accent">Developer Terpercaya</span></h1>
+          <h1 class="headline">Temukan <span class="text-accent">Rumah Terbaik</span> dari Developer Terpercaya</h1>
           <p class="subheadline">Bandingkan lokasi, harga, dan promo dari berbagai developer dalam satu platform.</p>
           <div class="hero-ctas">
-            <NuxtLink class="btn btn-primary btn-lg" to="/projects">Lihat Proyek</NuxtLink>
+            <NuxtLink class="btn btn-primary btn-lg" to="/projects">Lihat Rumah</NuxtLink>
             <button type="button" class="btn btn-outline btn-lg" @click="openMail">Jadwalkan Konsultasi</button>
           </div>
           <div class="trust-badges">
@@ -40,7 +40,7 @@
             </div>
             <div class="badge">
               <span class="badge-num">300+</span>
-              <span class="badge-label">Proyek</span>
+              <span class="badge-label">Rumah</span>
             </div>
             <div class="badge">
               <span class="badge-num">1.200+</span>
@@ -60,7 +60,7 @@
       <div class="search-container container" v-reveal="{ delay: 400 }">
         <div class="search-box glass-card">
           <div class="search-field">
-            <label><LucideMapPin size="16" /> Kota</label>
+            <label><LucideMapPin :size="16" /> Kota</label>
             <select v-model="searchCity">
               <option value="">Semua Kota</option>
               <option value="Jakarta">Jakarta</option>
@@ -70,7 +70,7 @@
             </select>
           </div>
           <div class="search-field">
-            <label><LucideDollarSign size="16" /> Harga</label>
+            <label><LucideDollarSign :size="16" /> Harga</label>
             <select v-model="priceBand">
               <option value="">Mulai Dari</option>
               <option value="lt500">&lt; 500 Jt</option>
@@ -79,7 +79,7 @@
             </select>
           </div>
           <div class="search-field">
-            <label><LucideHome size="16" /> Tipe Rumah</label>
+            <label><LucideHome :size="16" /> Tipe Rumah</label>
             <select v-model="houseType">
               <option value="">Semua Tipe</option>
               <option value="Modern">Modern</option>
@@ -88,7 +88,7 @@
             </select>
           </div>
           <div class="search-field">
-            <label><LucideBuilding size="16" /> Developer</label>
+            <label><LucideBuilding :size="16" /> Developer</label>
             <select v-model="searchDeveloperId">
               <option value="">Semua Developer</option>
               <option v-for="d in devOptions" :key="d.id" :value="d.id">{{ d.name }}</option>
@@ -104,10 +104,10 @@
     <!-- 4. Featured Projects -->
     <section class="featured">
       <div class="container">
-        <h2 class="section-title" v-reveal>Proyek Pilihan <span class="text-accent">Minggu Ini</span></h2>
-        <p v-if="featuredPending" class="featured-hint">Memuat proyek…</p>
-        <p v-else-if="featuredError" class="featured-hint">Data proyek belum tersedia. Jalankan migrasi database dan <code>npm run db:seed</code>.</p>
-        <p v-else-if="!featuredProjects.length" class="featured-hint">Belum ada proyek dalam database.</p>
+        <h2 class="section-title" v-reveal>Rumah Pilihan <span class="text-accent">Minggu Ini</span></h2>
+        <p v-if="featuredPending" class="featured-hint">Memuat rumah…</p>
+        <p v-else-if="featuredError" class="featured-hint">Data rumah belum tersedia. Jalankan migrasi database dan <code>npm run db:seed</code>.</p>
+        <p v-else-if="!featuredProjects.length" class="featured-hint">Belum ada rumah dalam database.</p>
         <div v-else class="project-grid">
           <div v-for="(project, i) in featuredProjects" :key="project.id" class="project-card" v-reveal="{ delay: i * 100 }">
             <NuxtLink :to="`/projects/${project.id}`" class="card-image card-image-link">
@@ -115,7 +115,7 @@
               <div v-if="project.promo" class="card-badge">{{ project.promo }}</div>
             </NuxtLink>
             <div class="card-body">
-              <div class="card-location"><LucideMapPin size="14" /> {{ project.location }}</div>
+              <div class="card-location"><LucideMapPin :size="14" /> {{ project.location }}</div>
               <h3 class="card-title">{{ project.name }}</h3>
               <div class="card-price">Mulai {{ formatPropertyPrice(project.startPrice) }}</div>
               <NuxtLink class="btn btn-outline btn-full" :to="`/projects/${project.id}`">Lihat Detail</NuxtLink>
@@ -154,7 +154,7 @@
       <div class="container">
         <div class="testimonial-grid">
           <div v-for="(testi, i) in testimonials" :key="i" class="testimonial-card" v-reveal="{ delay: i * 150 }">
-            <div class="quote-icon"><LucideQuote size="32" /></div>
+            <div class="quote-icon"><LucideQuote :size="32" /></div>
             <p class="quote-text">“{{ testi.text }}”</p>
             <div class="quote-author">— {{ testi.author }}</div>
           </div>
@@ -166,7 +166,7 @@
     <section id="cta-dev" class="cta-dev">
       <div class="container">
         <div class="cta-dev-content" v-reveal>
-          <h2>Punya Proyek Perumahan? <br>Pasarkan Lebih Cepat Bersama Kami</h2>
+          <h2>Punya Perumahan? <br>Pasarkan Lebih Cepat Bersama Kami</h2>
           <NuxtLink class="btn btn-accent btn-lg" to="/developer/register">Gabung Sebagai Developer</NuxtLink>
         </div>
       </div>
@@ -189,7 +189,7 @@
         </div>
         <div class="footer-menu">
           <h5>Layanan</h5>
-          <NuxtLink to="/projects">Cari Proyek</NuxtLink>
+          <NuxtLink to="/projects">Cari Rumah</NuxtLink>
           <a href="#">Simulasi KPR</a>
           <a href="#">Konsultasi Gratis</a>
         </div>
@@ -201,9 +201,9 @@
         </div>
         <div id="footer-kontak" class="footer-contact">
           <h5>Kontak</h5>
-          <p><LucideMail size="16" /> hello@proferti.com</p>
-          <p><LucidePhone size="16" /> +62 21 1234 5678</p>
-          <p><LucideMapPin size="16" /> Jakarta, Indonesia</p>
+          <p><LucideMail :size="16" /> hello@proferti.com</p>
+          <p><LucidePhone :size="16" /> +62 21 1234 5678</p>
+          <p><LucideMapPin :size="16" /> Jakarta, Indonesia</p>
         </div>
       </div>
       <div class="footer-bottom container">
@@ -292,7 +292,7 @@ const featuredProjects = computed(() => featuredPayload.value?.projects ?? [])
 
 // Custom reveal directive for scroll animations
 const vReveal = {
-  mounted: (el, binding) => {
+  mounted: (el: HTMLElement, binding: any) => {
     const delay = binding.value?.delay || 0
     el.style.opacity = '0'
     el.style.transform = 'translateY(30px)'
@@ -350,7 +350,7 @@ const testimonials = [
 ]
 
 useSeoMeta({
-  title: 'Proferti - Proyek Rumah Terbaik dari Developer Terpercaya',
+  title: 'Proferti - Rumah Terbaik dari Developer Terpercaya',
   description: 'Bandingkan lokasi, harga, dan promo dari berbagai developer properti terbaik di Indonesia dalam satu platform.'
 })
 </script>

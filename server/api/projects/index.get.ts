@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
       }
     ]
   }
-
+  
   const select = {
     id: true,
     name: true,
@@ -83,9 +83,14 @@ export default defineEventHandler(async (event) => {
     })
   ])
 
-  const projects = rawProjects.map(({ _count, ...p }) => ({
+  const projects = rawProjects.map(({ _count, developer, ...p }) => ({
     ...p,
-    galleryCount: _count.gallery
+    galleryCount: _count.gallery,
+    developer: {
+      id: developer.id,
+      name: developer.name,
+      logo: developer.logo
+    }
   }))
 
   return {

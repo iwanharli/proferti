@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       developer: {
         select: {
           id: true,
-          name: true,
+          companyName: true,
           logo: true,
           description: true,
           website: true
@@ -27,5 +27,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Proyek tidak ditemukan' })
   }
 
-  return { project }
+  // Format developer name for frontend
+  const formattedProject = {
+    ...project,
+    developer: {
+      ...project.developer,
+      name: project.developer.companyName
+    }
+  }
+
+  return { project: formattedProject }
 })

@@ -3,17 +3,18 @@ import { prisma } from '../../utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const session = await getServerSession(event)
-  const email = session?.user?.email
-  const nameFromSession = session?.user?.name
+  const user = session?.user as any
+  const email = user?.email
+  const nameFromSession = user?.name
 
-  if (!email || !session?.user?.id) {
+  if (!email || !user?.id) {
     throw createError({
       statusCode: 401,
       message: 'Masuk dengan GitHub terlebih dahulu.'
     })
   }
 
-  const userId = session.user.id
+  const userId = user.id
 
   const body = await readBody(event).catch(() => ({}))
 
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event) => {
     await tx.developer.create({
       data: {
         userId,
-        name,
+        name: name,
         description:
           typeof body?.description === 'string' ? body.description.trim().slice(0, 5000) : null,
         website: typeof body?.website === 'string' ? body.website.trim().slice(0, 512) || null : null

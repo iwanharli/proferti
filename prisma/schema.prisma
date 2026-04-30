@@ -44,6 +44,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime? @map("email_verified")
   image         String?
+  developer     Developer?
   accounts      Account[]
   sessions      Session[]
   
@@ -68,7 +69,7 @@ model VerificationToken {
 // Proferti Business Models
 model Developer {
   id          String    @id @default(cuid()) @db.Uuid
-  companyName String    @map("company_name")
+  name        String    @map("company_name")
   slug        String    @unique
   ownerName   String?   @map("owner_name")
   phone       String?
@@ -93,11 +94,13 @@ model Project {
   description String?
   startPrice  Float     @map("starting_price")
   promo       String?   @map("promo_text")
-  image       String?   @map("cover_image")
-  developerId String    @map("developer_id") @db.Uuid
+  image       String?       @map("cover_image")
+  status      ProjectStatus @default(AVAILABLE)
+  developerId String        @map("developer_id") @db.Uuid
   developer   Developer @relation(fields: [developerId], references: [id])
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
+  gallery     Gallery[]
 
   @@map("t_projects")
 }
