@@ -9,44 +9,50 @@ datasource db {
 
 // Auth.js Models
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
+  id                 String  @id @default(cuid()) @db.Uuid
+  userId             String  @map("user_id") @db.Uuid
   type               String
   provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
+  providerAccountId  String  @map("provider_account_id")
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String?  @db.Text
+  id_token           String? @db.Text
   session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("accounts")
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
+  id           String   @id @default(cuid()) @db.Uuid
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(cuid()) @db.Uuid
   name          String?
   email         String?   @unique
-  emailVerified DateTime?
+  emailVerified DateTime? @map("email_verified")
   image         String?
   accounts      Account[]
   sessions      Session[]
   
   // Custom Proferti Fields
-  role          Role      @default(USER)
-  developer     Developer?
+  role          String    @default("developer")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("t_users")
 }
 
 model VerificationToken {
@@ -55,50 +61,60 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
-enum Role {
-  USER
-  DEVELOPER
-  ADMIN
-}
 
 // Proferti Business Models
 model Developer {
-  id          String    @id @default(cuid())
-  name        String
+  id          String    @id @default(cuid()) @db.Uuid
+  companyName String    @map("company_name")
+  slug        String    @unique
+  ownerName   String?   @map("owner_name")
+  phone       String?
+  email       String?
   logo        String?
   description String?
   website     String?
-  userId      String    @unique
+  userId      String    @unique @map("user_id") @db.Uuid
   user        User      @relation(fields: [userId], references: [id])
   projects    Project[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("t_developers")
 }
 
 model Project {
-  id          String    @id @default(cuid())
-  name        String
+  id          String    @id @default(cuid()) @db.Uuid
+  name        String    @map("project_name")
   location    String
+  slug        String
   description String?
-  startPrice  Float
-  promo       String?
-  image       String?   // Featured image
-  gallery     ProjectImage[]
-  developerId String
+  startPrice  Float     @map("starting_price")
+  promo       String?   @map("promo_text")
+  image       String?   @map("cover_image")
+  developerId String    @map("developer_id") @db.Uuid
   developer   Developer @relation(fields: [developerId], references: [id])
-  status      ProjectStatus @default(AVAILABLE)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("t_projects")
 }
 
-model ProjectImage {
-  id        String  @id @default(cuid())
-  url       String
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+model Gallery {
+  id        String   @id @default(cuid()) @db.Uuid
+  projectId String   @map("project_id") @db.Uuid
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  image     String   @db.Text
+  title     String?
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("t_galleries")
 }
+
 
 enum ProjectStatus {
   AVAILABLE
