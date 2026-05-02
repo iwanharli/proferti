@@ -1204,10 +1204,10 @@ function renderProjectMarkers() {
       el.className = 'custom-marker group cursor-pointer'
       el.innerHTML = `
         <div class="relative flex flex-col items-center">
-          <div class="w-10 h-10 ${devColor.bg} text-slate-900 rounded-xl flex items-center justify-center border-2 border-white/40 shadow-[0_0_30px_${devColor.shadow}] transition-all animate-solar-glow group-hover:scale-125 group-hover:-rotate-12 group-hover:text-white">
+          <div class="w-10 h-10 ${devColor.bg} text-slate-900 rounded-xl flex items-center justify-center border-2 border-white/40 transition-all animate-solar-glow group-hover:scale-125 group-hover:-rotate-12 group-hover:text-white" style="box-shadow: 0 0 30px ${devColor.shadow}">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
           </div>
-          <div class="w-2.5 h-2.5 ${devColor.bg} rounded-full mt-1 animate-pulse border-2 border-white shadow-[0_0_15px_${devColor.shadow}]"></div>
+          <div class="w-2.5 h-2.5 ${devColor.bg} rounded-full mt-1 animate-pulse border-2 border-white" style="box-shadow: 0 0 15px ${devColor.shadow}"></div>
         </div>
       `
       el.addEventListener('click', (e) => {
