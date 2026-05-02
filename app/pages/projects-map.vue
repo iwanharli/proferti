@@ -1005,6 +1005,9 @@ async function focusProject(p: any) {
       duration: 2500,
       essential: true
     })
+    
+    // Refresh polygons to show only the selected one
+    updateMapData()
   }
 }
 
@@ -1037,8 +1040,8 @@ function updateMapData() {
     const devName = p.developer?.name || 'Lainnya'
     const devColor = getDeveloperColor(devName)
 
-    // Add to Polygon Features
-    if (p.polygon?.coordinates) {
+    // Add to Polygon Features (Only if selected)
+    if (p.polygon?.coordinates && selectedProject.value?.id === p.id) {
       features.push({
         type: 'Feature',
         geometry: p.polygon,
@@ -1239,6 +1242,12 @@ function renderProjectMarkers() {
 
 watch(projects, () => {
   updateMapData()
+})
+
+watch(selectedProject, (val) => {
+  if (!val) {
+    updateMapData()
+  }
 })
 
 watch([userLocation, mapReady], ([newLoc, ready]) => {
