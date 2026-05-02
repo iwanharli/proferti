@@ -620,6 +620,10 @@ function initMap() {
           map.value?.fitBounds(bounds, { padding: 50, duration: 1500 })
 
           if (provinceKode) {
+            // Hide the clicked province from the main layers to avoid overlap
+            map.value?.setFilter('provinces-fill', ['!=', ['get', 'kode'], provinceKode])
+            map.value?.setFilter('provinces-outline', ['!=', ['get', 'kode'], provinceKode])
+
             // Fetch cities for this province
             try {
               const cityGeoJSON = await $fetch<any>(`/api/regions/geojson?parent=${provinceKode}`)
@@ -634,7 +638,8 @@ function initMap() {
 
                 map.value.addSource('cities', {
                   type: 'geojson',
-                  data: cityGeoJSON
+                  data: cityGeoJSON,
+                  generateId: true
                 })
 
                 map.value.addLayer({
@@ -642,8 +647,13 @@ function initMap() {
                   type: 'fill',
                   source: 'cities',
                   paint: {
-                    'fill-color': '#3b82f6', // Blue
-                    'fill-opacity': 0.05
+                    'fill-color': '#3b82f6',
+                    'fill-opacity': [
+                      'case',
+                      ['boolean', ['feature-state', 'hover'], false],
+                      0.2,
+                      0.05
+                    ]
                   }
                 })
 
@@ -653,10 +663,37 @@ function initMap() {
                   source: 'cities',
                   paint: {
                     'line-color': '#3b82f6',
-                    'line-width': 1,
+                    'line-width': [
+                      'case',
+                      ['boolean', ['feature-state', 'hover'], false],
+                      2,
+                      1
+                    ],
                     'line-dasharray': [2, 1],
-                    'line-opacity': 0.5
+                    'line-opacity': 0.8
                   }
+                })
+
+                // City Hover Effects
+                let hoveredCityId: string | number | null = null
+                map.value.on('mousemove', 'cities-fill', (ev) => {
+                  if (ev.features && ev.features.length > 0) {
+                    if (hoveredCityId !== null) {
+                      map.value?.setFeatureState({ source: 'cities', id: hoveredCityId }, { hover: false })
+                    }
+                    hoveredCityId = ev.features[0].id || null
+                    if (hoveredCityId !== null) {
+                      map.value?.setFeatureState({ source: 'cities', id: hoveredCityId }, { hover: true })
+                    }
+                    map.value!.getCanvas().style.cursor = 'pointer'
+                  }
+                })
+                map.value.on('mouseleave', 'cities-fill', () => {
+                  if (hoveredCityId !== null) {
+                    map.value?.setFeatureState({ source: 'cities', id: hoveredCityId }, { hover: false })
+                  }
+                  hoveredCityId = null
+                  map.value!.getCanvas().style.cursor = ''
                 })
 
                 // Click event for city zoom in
