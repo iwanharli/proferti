@@ -146,13 +146,13 @@ import {
 import { formatPropertyPrice } from '~/utils/currency'
 
 const route = useRoute()
-const id = computed(() => route.params.id as string)
+const idOrSlug = computed(() => route.params.unitSlug as string)
 const slug = computed(() => route.params.slug as string)
 const DEFAULT_IMG = 'https://www.dummyimg.in/placeholder?width=1200&height=800'
 
 const { data, pending } = await useFetch<{ unitType: any }>(
-  () => `/api/unit-types/${id.value}`,
-  { watch: [id] }
+  () => `/api/unit-types/${idOrSlug.value}`,
+  { watch: [idOrSlug] }
 )
 
 const unit = computed(() => data.value?.unitType)
