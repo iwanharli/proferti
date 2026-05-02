@@ -599,11 +599,73 @@ function initMap() {
       })
 
       // Click Event
-      map.value.on('click', 'provinces-fill', (e) => {
+      map.value.on('click', 'provinces-fill', async (e) => {
         if (e.features && e.features.length > 0) {
           const props = e.features[0].properties
           const provinceName = props?.name || 'Provinsi'
+          const provinceKode = props?.kode
           
+          if (provinceKode) {
+            // Fetch cities for this province
+            try {
+              const cityGeoJSON = await $fetch<any>(`/api/regions/geojson?parent=${provinceKode}`)
+              
+              if (cityGeoJSON && map.value) {
+                // Remove existing city layer if any
+                if (map.value.getSource('cities')) {
+                  if (map.value.getLayer('cities-outline')) map.value.removeLayer('cities-outline')
+                  if (map.value.getLayer('cities-fill')) map.value.removeLayer('cities-fill')
+                  map.value.removeSource('cities')
+                }
+
+                map.value.addSource('cities', {
+                  type: 'geojson',
+                  data: cityGeoJSON
+                })
+
+                map.value.addLayer({
+                  id: 'cities-fill',
+                  type: 'fill',
+                  source: 'cities',
+                  paint: {
+                    'fill-color': '#3b82f6', // Blue
+                    'fill-opacity': 0.05
+                  }
+                })
+
+                map.value.addLayer({
+                  id: 'cities-outline',
+                  type: 'line',
+                  source: 'cities',
+                  paint: {
+                    'line-color': '#3b82f6',
+                    'line-width': 1,
+                    'line-dasharray': [2, 1],
+                    'line-opacity': 0.5
+                  }
+                })
+
+                // Add popup for city info on click
+                map.value.on('click', 'cities-fill', (ev) => {
+                  if (ev.features && ev.features.length > 0) {
+                    const cProps = ev.features[0].properties
+                    new mapboxgl.Popup({ className: 'elite-popup' })
+                      .setLngLat(ev.lngLat)
+                      .setHTML(`
+                        <div class="p-3 bg-slate-900 text-white rounded-xl border border-white/10 shadow-2xl">
+                          <p class="text-[8px] font-black uppercase tracking-widest text-blue-400 mb-1">Kota / Kabupaten</p>
+                          <h3 class="text-sm font-black">${cProps?.name}</h3>
+                        </div>
+                      `)
+                      .addTo(map.value!)
+                  }
+                })
+              }
+            } catch (err) {
+              console.error('Failed to fetch city GeoJSON', err)
+            }
+          }
+
           new mapboxgl.Popup({ className: 'elite-popup' })
             .setLngLat(e.lngLat)
             .setHTML(`
@@ -611,7 +673,7 @@ function initMap() {
                 <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Wilayah Administrasi</p>
                 <h3 class="text-lg font-black">${provinceName}</h3>
                 <div class="mt-3 pt-3 border-t border-white/5 shadow-sm">
-                   <p class="text-[9px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">Klik marker properti di dalam wilayah ini untuk detail hunian.</p>
+                   <p class="text-[9px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">Batas kota/kabupaten telah ditampilkan.</p>
                 </div>
               </div>
             `)
