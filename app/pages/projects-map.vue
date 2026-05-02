@@ -569,7 +569,7 @@ function initMap() {
       let hoveredProvinceId: string | number | null = null
       
       map.value.on('mousemove', 'provinces-fill', (e) => {
-        if (e.features && e.features.length > 0) {
+        if (e.features && e.features[0]) {
           if (hoveredProvinceId !== null) {
             map.value?.setFeatureState(
               { source: 'provinces', id: hoveredProvinceId },
@@ -1122,14 +1122,14 @@ function toggleFloodLayer() {
 
   if (showFloodLayer.value) {
     // Switch to Dark Style for high contrast
-    currentMap.setStyle('mapbox://styles/mapbox/dark-v11', { diff: false })
+    currentMap.setStyle('mapbox://styles/mapbox/dark-v11', { diff: false } as any)
     currentMap.once('style.load', () => {
       addFloodLayer(true) // Fit bounds on first activation
       updateMapData() 
     })
   } else {
     // Switch back to Satellite
-    currentMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12', { diff: false })
+    currentMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12', { diff: false } as any)
     currentMap.once('style.load', () => {
       updateMapData()
     })
