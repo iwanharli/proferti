@@ -1,327 +1,208 @@
 <template>
-  <div class="dev-dashboard">
-    <!-- Top Navbar for Dashboard -->
-    <nav class="dash-nav glass-card">
-      <div class="nav-left">
-        <NuxtLink to="/" class="logo">
-          <LucideHome :size="20" class="text-accent" />
-          <span>PROFERTI</span>
+  <div class="dash-layout">
+    <!-- Elite Sidebar -->
+    <aside class="dash-sidebar">
+      <div class="flex items-center gap-3 mb-12">
+        <LucideHome :size="28" class="text-accent" />
+        <span class="font-black text-xl tracking-widest text-white">PROFERTI</span>
+      </div>
+      
+      <nav class="flex flex-col gap-2 flex-1">
+        <NuxtLink to="/developer/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all bg-accent text-white">
+          <LucideLayoutDashboard :size="20" /> Dashboard
         </NuxtLink>
-        <span class="divider">/</span>
-        <span class="nav-current">Developer Console</span>
-      </div>
-      <div class="nav-right">
-        <div class="user-info">
-          <span class="user-email">{{ userEmail }}</span>
-          <button @click="handleLogout" class="btn btn-sm btn-outline">Keluar</button>
-        </div>
-      </div>
-    </nav>
+        <NuxtLink to="/developer/leads" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:bg-white/10 hover:text-white">
+          <LucideUsers :size="20" /> Leads
+          <span v-if="leadTotal > 0" class="ml-auto bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ leadTotal }}</span>
+        </NuxtLink>
+        <div class="mt-6 mb-2 text-[11px] font-extrabold uppercase text-slate-600 tracking-wider">Manajemen</div>
+        <NuxtLink to="/developer/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:bg-white/10 hover:text-white">
+          <LucideBuilding :size="20" /> Proyek Saya
+        </NuxtLink>
+        <NuxtLink to="/developer/register" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:bg-white/10 hover:text-white">
+          <LucideUser :size="20" /> Profil Perusahaan
+        </NuxtLink>
+      </nav>
 
-    <div class="container dash-content">
-      <header class="page-header">
-        <div class="header-text">
-          <h1>Kelola Proyek Rumah</h1>
-          <p>Kelola listing properti dan pantau statistik performa Anda.</p>
-        </div>
-        <button class="btn btn-primary">
-          <LucidePlus :size="20" /> Tambah Proyek Baru
+      <div class="pt-6 border-t border-slate-800">
+        <button @click="handleLogout" class="flex items-center gap-2 text-red-500 font-bold opacity-80 hover:opacity-100 hover:translate-x-1 transition-all">
+          <LucideLogOut :size="18" /> Keluar Sesi
         </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dash-main">
+      <header class="flex justify-between items-end mb-12">
+        <div>
+          <h1 class="text-4xl font-black text-primary mb-2">Console Developer</h1>
+          <p class="text-slate-500 font-medium">Pantau perkembangan properti dan respon lead Anda di sini.</p>
+        </div>
+        <div>
+          <button class="btn btn-accent" @click="openCreate">
+            <LucidePlus :size="20" /> Tambah Proyek Baru
+          </button>
+        </div>
       </header>
 
-      <!-- Dashboard Stats -->
-      <div class="dashboard-stats">
-        <div class="dash-card glass-card">
-          <span class="dash-label">Proyek Aktif</span>
-          <span class="dash-value">3</span>
-        </div>
-        <div class="dash-card glass-card">
-          <span class="dash-label">Total Dilihat</span>
-          <span class="dash-value">1,420</span>
-        </div>
-        <div class="dash-card glass-card">
-          <span class="dash-label">Lead Diterima</span>
-          <span class="dash-value">28</span>
-        </div>
-      </div>
-
-      <!-- Project List Section -->
-      <section class="project-section">
-        <div class="section-header">
-          <h2>Daftar Proyek Anda</h2>
-        </div>
-
-        <div v-if="pending" class="loading-state">Memuat data...</div>
-        <div v-else-if="!projects.length" class="empty-state glass-card">
-          <LucideFolderOpen :size="48" class="text-muted" />
-          <p>Anda belum memiliki proyek yang terdaftar.</p>
-          <button class="btn btn-primary btn-sm">Mulai Tambah Proyek</button>
+      <!-- Elite Stat Cards -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div class="glass-card p-8 flex items-center gap-5 relative overflow-hidden">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-emerald-400 to-emerald-600">
+            <LucideBuilding2 :size="24" />
+          </div>
+          <div>
+            <span class="block text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Proyek Aktif</span>
+            <span class="text-3xl font-black text-primary">{{ projectTotal }}</span>
+          </div>
+          <div class="flex items-end gap-1 h-10 ml-auto">
+             <div class="w-1 bg-accent rounded-full opacity-30 h-[40%]"></div>
+             <div class="w-1 bg-accent rounded-full opacity-30 h-[70%]"></div>
+             <div class="w-1 bg-accent rounded-full opacity-30 h-[50%]"></div>
+             <div class="w-1 bg-accent rounded-full opacity-30 h-[90%]"></div>
+          </div>
         </div>
         
-        <div v-else class="dash-project-list">
-          <div v-for="p in projects" :key="p.id" class="dash-project-card glass-card">
-            <div class="card-img">
-              <NuxtImg :src="p.image || DEFAULT_IMG" :alt="p.name" />
+        <div class="glass-card p-8 flex items-center gap-5 relative overflow-hidden">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-indigo-400 to-indigo-600">
+            <LucideUsers :size="24" />
+          </div>
+          <div>
+            <span class="block text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Total Lead</span>
+            <span class="text-3xl font-black text-primary">{{ leadTotal }}</span>
+          </div>
+        </div>
+
+        <div class="glass-card p-8 flex items-center gap-5 relative overflow-hidden">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-purple-400 to-purple-600">
+            <LucideTrendingUp :size="24" />
+          </div>
+          <div>
+            <span class="block text-[11px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Status Akun</span>
+            <span class="text-3xl font-black text-primary">Verified</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Project List Section -->
+      <section>
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-black text-primary">Portofolio Proyek</h2>
+          <div class="flex items-center gap-3 bg-white px-4 py-2.5 rounded-full border border-slate-100 w-72 shadow-sm">
+            <LucideSearch :size="18" class="text-slate-400" />
+            <input type="text" placeholder="Cari proyek..." class="border-none outline-none text-sm w-full font-medium" />
+          </div>
+        </div>
+
+        <div v-if="projectPending" class="py-24 text-center">
+          <div class="w-10 h-10 border-4 border-slate-100 border-t-accent rounded-full animate-spin mx-auto"></div>
+        </div>
+
+        <div v-else-if="projects.length === 0" class="glass-card p-20 text-center flex flex-col items-center gap-4">
+          <LucideInbox :size="64" class="text-slate-300" />
+          <h3 class="text-2xl font-black">Mulai Perjalanan Anda</h3>
+          <p class="max-w-md text-slate-500 font-medium mb-3">Anda belum memiliki proyek yang terdaftar. Tambahkan proyek pertama untuk mulai mendapatkan lead.</p>
+          <button class="btn btn-accent" @click="openCreate">Tambah Proyek Sekarang</button>
+        </div>
+
+        <div v-else class="flex flex-col gap-4">
+          <div v-for="p in projects" :key="p.id" class="glass-card p-4 flex items-center gap-6 group">
+            <div class="w-36 h-24 rounded-2xl overflow-hidden relative flex-shrink-0">
+              <img :src="p.image || DEFAULT_IMG" :alt="p.name" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <div class="absolute bottom-2 left-2 text-[9px] font-black uppercase bg-black/60 text-white px-2 py-0.5 rounded backdrop-blur-md">{{ statusLabel(p.status) }}</div>
             </div>
-            <div class="card-info">
-              <div class="card-meta">
-                <span :class="['status-badge', p.status.toLowerCase()]">{{ p.status }}</span>
-                <span class="location"><LucideMapPin :size="14" /> {{ p.location }}</span>
+            
+            <div class="flex-1">
+              <div class="flex items-center gap-1.5 text-[13px] font-bold text-slate-500 mb-1">
+                <LucideMapPin :size="14" /> {{ p.location.name }}, {{ p.location.city }}
               </div>
-              <h3>{{ p.name }}</h3>
-              <p class="price">Mulai {{ formatPropertyPrice(p.startPrice) }}</p>
+              <h3 class="text-lg font-black text-primary mb-1">{{ p.name }}</h3>
+              <p class="font-black text-accent">Mulai {{ formatPropertyPrice(p.startPrice) }}</p>
             </div>
-            <div class="card-actions">
-              <button class="btn btn-icon btn-outline" title="Edit"><LucideEdit :size="18" /></button>
-              <button class="btn btn-icon btn-outline" title="View"><LucideEye :size="18" /></button>
-              <button class="btn btn-icon btn-danger-outline" title="Delete"><LucideTrash2 :size="18" /></button>
+
+            <div class="pr-4">
+              <NuxtLink :to="`/developer/projects/${p.id}`" class="btn btn-outline border-slate-200 hover:border-accent hover:text-accent group/btn">
+                Kelola Proyek <LucideArrowRight :size="16" class="transition-transform group-hover/btn:translate-x-1" />
+              </NuxtLink>
             </div>
           </div>
         </div>
       </section>
-    </div>
+    </main>
+
+    <!-- Modals -->
+    <ProjectFormModal
+      v-if="showModal"
+      :project="editProject"
+      @close="showModal = false"
+      @saved="onSaved"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { 
-  LucideHome, LucidePlus, LucideMapPin, 
-  LucideEdit, LucideEye, LucideTrash2,
-  LucideFolderOpen
+import {
+  LucideHome, LucideLayoutDashboard, LucideUsers, LucideBuilding, 
+  LucideUser, LucideLogOut, LucidePlus, LucideBuilding2, 
+  LucideTrendingUp, LucideSearch, LucideInbox, LucideMapPin,
+  LucideArrowRight
 } from 'lucide-vue-next'
 import { formatPropertyPrice } from '~/utils/currency'
 
-const DEFAULT_IMG = 'https://images.unsplash.com/photo-1600585154340-be6191da110e?auto=format&fit=crop&w=600'
+const DEFAULT_IMG = 'https://www.dummyimg.in/placeholder?width=1200&height=800'
 
 const { data: authData, signOut } = useAuth()
-const userEmail = computed(() => authData.value?.user?.email || 'Developer')
+const userId = computed(() => (authData.value?.user as any)?.id || '')
+
+// Fetch Developer Detail
+const { data: devData } = await useFetch<{ developer: { id: string } }>(
+  () => `/api/developers/me?userId=${userId.value}`,
+  { key: 'dev-profile-dash' }
+)
+const developerId = computed(() => devData.value?.developer?.id || '')
+
+// Fetch Projects
+const { data: projData, pending: projectPending, refresh: refreshProjects } = await useFetch<{
+  projects: any[]
+  pagination: { total: number }
+}>(
+  '/api/projects',
+  {
+    query: computed(() => ({ developerId: developerId.value, limit: 100 })),
+    watch: [developerId]
+  }
+)
+const projects     = computed(() => projData.value?.projects ?? [])
+const projectTotal = computed(() => projData.value?.pagination?.total ?? 0)
+
+// Fetch Lead count
+const { data: leadData, refresh: refreshLeads } = await useFetch<{ pagination: { total: number } }>(
+  '/api/leads',
+  { key: 'dev-leads-count-dash' }
+)
+const leadTotal = computed(() => leadData.value?.pagination?.total ?? 0)
+
+// Modal Logic
+const showModal = ref(false)
+const editProject = ref<any>(null)
+
+function openCreate() { editProject.value = null; showModal.value = true }
+async function onSaved() {
+  showModal.value = false
+  await refreshProjects()
+}
 
 async function handleLogout() {
   await signOut({ callbackUrl: '/login' })
 }
 
-// Fetch only projects for this developer (logic will need backend adjustment for true filtering, 
-// but for now we'll fetch general projects for demonstration)
-const { data: payload, pending } = await useFetch<any>('/api/projects', {
-  query: { limit: '10' }
-})
-const projects = computed(() => payload.value?.projects || [])
+function statusLabel(s: string) {
+  return s === 'active' ? 'Tersedia' : s === 'soldout' ? 'Habis Terjual' : 'Segera Hadir'
+}
 
-useSeoMeta({
-  title: 'Developer Console - Proferti'
-})
+useSeoMeta({ title: 'Developer Elite Console — Proferti' })
 </script>
 
 <style scoped>
-.dev-dashboard {
-  min-height: 100vh;
-  background-color: #f8fafc;
-  padding-bottom: 80px;
-}
-
-.dash-nav {
-  height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 40px;
-  margin: 20px 40px;
-  background: white;
-  border-radius: 100px;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 800;
-  font-family: var(--font-display);
-  color: var(--primary);
-}
-
-.divider {
-  color: var(--border);
-}
-
-.nav-current {
-  font-weight: 600;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.user-email {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--primary);
-}
-
-.dash-content {
-  margin-top: 40px;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.header-text h1 {
-  font-size: 32px;
-  margin-bottom: 4px;
-}
-
-.header-text p {
-  color: var(--text-muted);
-}
-
-/* Dashboard Stats */
-.dashboard-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 48px;
-}
-
-.dash-card {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: white;
-}
-
-.dash-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.dash-value {
-  font-size: 32px;
-  font-weight: 800;
-  color: var(--primary);
-}
-
-/* Project List */
-.section-header {
-  margin-bottom: 24px;
-}
-
-.dash-project-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.dash-project-card {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-  background: white;
-  gap: 24px;
-}
-
-.card-img {
-  width: 120px;
-  height: 80px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.card-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.card-info {
-  flex: 1;
-}
-
-.card-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.status-badge {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.status-badge.available { background: #dcfce7; color: #166534; }
-
-.location {
-  font-size: 13px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.card-info h3 {
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.price {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.card-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-icon {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  justify-content: center;
-}
-
-.btn-danger-outline {
-  color: #ef4444;
-  border: 1px solid #fee2e2;
-  background: white;
-}
-
-.btn-danger-outline:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 80px;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.empty-state p {
-  color: var(--text-muted);
-  font-weight: 500;
-}
+/* No more custom CSS needed! Everything is handled by Tailwind or main.css utility layers */
 </style>

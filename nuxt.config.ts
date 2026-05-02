@@ -8,7 +8,8 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
     '@nuxtjs/seo',
     '@nuxt/image',
-    '@sidebase/nuxt-auth'
+    '@sidebase/nuxt-auth',
+    '@nuxtjs/tailwindcss'
   ],
   googleFonts: {
     families: {
@@ -29,15 +30,6 @@ export default defineNuxtConfig({
       isEnabled: false
     }
   },
-  routeRules: {
-    '/api/projects/**': { proxy: 'http://localhost:8080/api/projects/**' },
-    '/api/projects': { proxy: 'http://localhost:8080/api/projects' },
-    '/api/developers/**': { proxy: 'http://localhost:8080/api/developers/**' },
-    '/api/developers': { proxy: 'http://localhost:8080/api/developers' }
-  },
-
-
-
 
 
 
@@ -48,6 +40,18 @@ export default defineNuxtConfig({
     zeroRuntime: true
   },
   css: ['assets/css/main.css'],
+  runtimeConfig: {
+    public: {
+      mapboxToken: process.env.NUXT_PUBLIC_MAPBOX_TOKEN || ''
+    }
+  },
+  routeRules: {
+    '/**': {
+      headers: {
+        'Content-Security-Policy': "default-src 'self' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: *; style-src 'self' 'unsafe-inline' *; img-src 'self' data: blob: *; connect-src 'self' data: blob: *.mapbox.com *; worker-src 'self' blob:; frame-src 'self' data: blob: *;"
+      }
+    }
+  },
   vite: {
     optimizeDeps: {
       include: [
@@ -58,4 +62,3 @@ export default defineNuxtConfig({
     }
   }
 })
-

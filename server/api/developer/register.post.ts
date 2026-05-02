@@ -1,48 +1,46 @@
 import { getServerSession } from '#auth'
-import { prisma } from '../../utils/prisma'
 
-export default defineEventHandler(async (event) => {
+const BE_URL = process.env.BE_URL || 'http://localhost:8080'
+
+export default defineEventHandler(async (event): Promise<any> => {
   const session = await getServerSession(event)
-  const user = session?.user as any
-  const email = user?.email
-  const nameFromSession = user?.name
+  const user    = session?.user as any
 
-  if (!email || !user?.id) {
+  if (!user?.id) {
     throw createError({
       statusCode: 401,
-      message: 'Masuk dengan GitHub terlebih dahulu.'
+      message: 'Masuk terlebih dahulu.'
     })
   }
 
-  const userId = user.id
+  const userId         = user.id as string
+  const nameFromSession = user.name as string | undefined
 
   const body = await readBody(event).catch(() => ({}))
 
   const name =
     typeof body?.name === 'string' && body.name.trim().length > 0
       ? body.name.trim()
-      : nameFromSession || email.split('@')[0] || 'Developer'
+      : nameFromSession || (user.email as string)?.split('@')[0] || 'Developer'
 
-  const existing = await prisma.developer.findUnique({ where: { userId } })
-  if (existing) {
-    throw createError({ statusCode: 409, message: 'Akun ini sudah terdaftar sebagai developer.' })
-  }
+  const description =
+    typeof body?.description === 'string' ? body.description.trim().slice(0, 5000) || undefined : undefined
+  const website =
+    typeof body?.website === 'string' ? body.website.trim().slice(0, 512) || undefined : undefined
 
-  await prisma.$transaction(async (tx) => {
-    await tx.user.update({
-      where: { id: userId },
-      data: { role: 'DEVELOPER' }
-    })
-    await tx.developer.create({
-      data: {
-        userId,
-        name: name,
-        description:
-          typeof body?.description === 'string' ? body.description.trim().slice(0, 5000) : null,
-        website: typeof body?.website === 'string' ? body.website.trim().slice(0, 512) || null : null
-      }
-    })
+  // Delegate to Go BE — all DB operations happen there
+  const res = await $fetch<{ ok: boolean; message: string }>(
+    `${BE_URL}/api/developers/register`,
+    {
+      method: 'POST',
+      body: { userId, name, description, website }
+    }
+  ).catch((err: any) => {
+    const status  = err?.response?.status ?? err?.statusCode ?? 500
+    const message = err?.data?.error ?? err?.message ?? 'Terjadi kesalahan sistem.'
+
+    throw createError({ statusCode: status, message })
   })
 
-  return { ok: true, message: 'Profil developer berhasil dibuat.' }
+  return res
 })
