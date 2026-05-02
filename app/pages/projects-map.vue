@@ -523,21 +523,99 @@ function initMap() {
     map.value.on('movestart', () => { userInteracting = true })
     map.value.on('moveend', () => { userInteracting = false })
     
-    // Add Province Layer
+    // Add Province Layer with Interactivity
     if (geoData.value && map.value) {
       map.value.addSource('provinces', {
         type: 'geojson',
-        data: geoData.value as any
+        data: geoData.value as any,
+        generateId: true // Required for feature-state hover effects
       })
 
+      // Province Fill (for Hover & Click detection)
+      map.value.addLayer({
+        id: 'provinces-fill',
+        type: 'fill',
+        source: 'provinces',
+        paint: {
+          'fill-color': '#ef4444',
+          'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0.1,
+            0
+          ]
+        }
+      })
+
+      // Province Outline (Red Dashed Line)
       map.value.addLayer({
         id: 'provinces-outline',
         type: 'line',
         source: 'provinces',
         paint: {
-          'line-color': '#10b981', // Emerald/Accent
-          'line-width': 1.5,
-          'line-opacity': 0.4
+          'line-color': '#ef4444',
+          'line-width': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            2.5,
+            1.5
+          ],
+          'line-dasharray': [2, 2],
+          'line-opacity': 0.8
+        }
+      })
+
+      // Hover Effect Listeners
+      let hoveredProvinceId: string | number | null = null
+      
+      map.value.on('mousemove', 'provinces-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          if (hoveredProvinceId !== null) {
+            map.value?.setFeatureState(
+              { source: 'provinces', id: hoveredProvinceId },
+              { hover: false }
+            )
+          }
+          hoveredProvinceId = e.features[0].id || null
+          if (hoveredProvinceId !== null) {
+            map.value?.setFeatureState(
+              { source: 'provinces', id: hoveredProvinceId },
+              { hover: true }
+            )
+          }
+          map.value!.getCanvas().style.cursor = 'pointer'
+        }
+      })
+
+      map.value.on('mouseleave', 'provinces-fill', () => {
+        if (hoveredProvinceId !== null) {
+          map.value?.setFeatureState(
+            { source: 'provinces', id: hoveredProvinceId },
+            { hover: false }
+          )
+        }
+        hoveredProvinceId = null
+        map.value!.getCanvas().style.cursor = ''
+      })
+
+      // Click Event
+      map.value.on('click', 'provinces-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          const props = e.features[0].properties
+          const provinceName = props?.name || 'Provinsi'
+          
+          new mapboxgl.Popup({ className: 'elite-popup' })
+            .setLngLat(e.lngLat)
+            .setHTML(`
+              <div class="p-4 bg-slate-900 text-white rounded-2xl border border-white/10 shadow-2xl">
+                <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Wilayah Administrasi</p>
+                <h3 class="text-lg font-black">${provinceName}</h3>
+                <div class="mt-3 pt-3 border-t border-white/5 shadow-sm">
+                   <p class="text-[9px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">Klik marker properti di dalam wilayah ini untuk detail hunian.</p>
+                </div>
+              </div>
+            `)
+            .addTo(map.value!)
         }
       })
     }
