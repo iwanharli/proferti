@@ -598,6 +598,14 @@ function initMap() {
         map.value!.getCanvas().style.cursor = ''
       })
 
+      // Province Hover Effects (Pointer cursor)
+      map.value.on('mouseenter', 'provinces-fill', () => {
+        map.value!.getCanvas().style.cursor = 'pointer'
+      })
+      map.value.on('mouseleave', 'provinces-fill', () => {
+        map.value!.getCanvas().style.cursor = ''
+      })
+
       // Click Event
       map.value.on('click', 'provinces-fill', async (e) => {
         if (e.features && e.features.length > 0) {
@@ -620,7 +628,7 @@ function initMap() {
           map.value?.fitBounds(bounds, { padding: 50, duration: 1500 })
 
           if (provinceKode) {
-            // Hide the clicked province from the main layers to avoid overlap
+            // Hide the clicked province from the main layers
             map.value?.setFilter('provinces-fill', ['!=', ['get', 'kode'], provinceKode])
             map.value?.setFilter('provinces-outline', ['!=', ['get', 'kode'], provinceKode])
 
@@ -647,12 +655,12 @@ function initMap() {
                   type: 'fill',
                   source: 'cities',
                   paint: {
-                    'fill-color': '#3b82f6',
+                    'fill-color': '#22d3ee', // Cyan
                     'fill-opacity': [
                       'case',
                       ['boolean', ['feature-state', 'hover'], false],
-                      0.2,
-                      0.05
+                      0.3,
+                      0.1
                     ]
                   }
                 })
@@ -662,15 +670,15 @@ function initMap() {
                   type: 'line',
                   source: 'cities',
                   paint: {
-                    'line-color': '#3b82f6',
+                    'line-color': '#ffffff', // White outline for high contrast
                     'line-width': [
                       'case',
                       ['boolean', ['feature-state', 'hover'], false],
                       2,
-                      1
+                      0.8
                     ],
-                    'line-dasharray': [2, 1],
-                    'line-opacity': 0.8
+                    'line-dasharray': [3, 2],
+                    'line-opacity': 0.9
                   }
                 })
 
