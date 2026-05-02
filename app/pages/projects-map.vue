@@ -541,8 +541,8 @@ function initMap() {
           'fill-opacity': [
             'case',
             ['boolean', ['feature-state', 'hover'], false],
-            0.1,
-            0
+            0.15,
+            0.01 // Very small but non-zero for click detection
           ]
         }
       })
@@ -625,9 +625,12 @@ function initMap() {
             })
           }
 
-          map.value?.fitBounds(bounds, { padding: 50, duration: 1500 })
+          map.value?.fitBounds(bounds, { padding: 30, duration: 1500 })
 
           if (provinceKode) {
+            // Change cursor to indicate loading
+            map.value!.getCanvas().style.cursor = 'wait'
+            
             // Hide the clicked province from the main layers
             map.value?.setFilter('provinces-fill', ['!=', ['get', 'kode'], provinceKode])
             map.value?.setFilter('provinces-outline', ['!=', ['get', 'kode'], provinceKode])
@@ -635,6 +638,7 @@ function initMap() {
             // Fetch cities for this province
             try {
               const cityGeoJSON = await $fetch<any>(`/api/regions/geojson?parent=${provinceKode}`)
+              map.value!.getCanvas().style.cursor = ''
               
               if (cityGeoJSON && map.value) {
                 // Remove existing city layer if any
@@ -663,7 +667,7 @@ function initMap() {
                       0.1
                     ]
                   }
-                })
+                }, 'settlement-subdivision-label')
 
                 map.value.addLayer({
                   id: 'cities-outline',
@@ -680,7 +684,7 @@ function initMap() {
                     'line-dasharray': [3, 2],
                     'line-opacity': 0.9
                   }
-                })
+                }, 'settlement-subdivision-label')
 
                 // City Hover Effects
                 let hoveredCityId: string | number | null = null
