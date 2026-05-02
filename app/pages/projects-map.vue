@@ -689,7 +689,7 @@ function initMap() {
                 // City Hover Effects
                 let hoveredCityId: string | number | null = null
                 map.value.on('mousemove', 'cities-fill', (ev) => {
-                  if (ev.features && ev.features.length > 0) {
+                  if (ev.features && ev.features[0]) {
                     if (hoveredCityId !== null) {
                       map.value?.setFeatureState({ source: 'cities', id: hoveredCityId }, { hover: false })
                     }
