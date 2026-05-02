@@ -608,7 +608,7 @@ function initMap() {
 
       // Click Event
       map.value.on('click', 'provinces-fill', async (e) => {
-        if (e.features && e.features.length > 0) {
+        if (e.features && e.features[0]) {
           const feature = e.features[0]
           const props = feature.properties
           const provinceKode = props?.kode
@@ -659,32 +659,32 @@ function initMap() {
                   type: 'fill',
                   source: 'cities',
                   paint: {
-                    'fill-color': '#22d3ee', // Cyan
+                    'fill-color': '#fbbf24', // Amber/Yellow for high visibility
                     'fill-opacity': [
                       'case',
                       ['boolean', ['feature-state', 'hover'], false],
-                      0.3,
-                      0.1
+                      0.4,
+                      0.15
                     ]
                   }
-                }, 'settlement-subdivision-label')
+                })
 
                 map.value.addLayer({
                   id: 'cities-outline',
                   type: 'line',
                   source: 'cities',
                   paint: {
-                    'line-color': '#ffffff', // White outline for high contrast
+                    'line-color': '#fbbf24', 
                     'line-width': [
                       'case',
                       ['boolean', ['feature-state', 'hover'], false],
-                      2,
-                      0.8
+                      4,
+                      2
                     ],
-                    'line-dasharray': [3, 2],
-                    'line-opacity': 0.9
+                    'line-dasharray': [2, 1],
+                    'line-opacity': 1
                   }
-                }, 'settlement-subdivision-label')
+                })
 
                 // City Hover Effects
                 let hoveredCityId: string | number | null = null
@@ -710,7 +710,7 @@ function initMap() {
 
                 // Click event for city zoom in
                 map.value.on('click', 'cities-fill', (ev) => {
-                  if (ev.features && ev.features.length > 0) {
+                  if (ev.features && ev.features[0]) {
                     const cFeature = ev.features[0]
                     const cCoords = (cFeature.geometry as any).coordinates
                     const cBounds = new mapboxgl.LngLatBounds()
