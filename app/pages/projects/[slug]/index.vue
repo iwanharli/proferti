@@ -19,7 +19,7 @@
 
         <div class="container mx-auto px-4 relative z-10">
           <div class="max-w-4xl">
-            <NuxtLink :to="`/developers/${proj.developer.id}`" class="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full mb-8 hover:bg-white/20 transition-all group overflow-hidden">
+            <NuxtLink :to="`/developers/${proj.developer.slug}`" class="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full mb-8 hover:bg-white/20 transition-all group overflow-hidden">
               <div v-if="proj.developer.logo && !logoError" class="w-6 h-6 shrink-0">
                 <img :src="proj.developer.logo" @error="logoError = true" class="w-full h-full object-contain" />
               </div>
@@ -178,9 +178,9 @@
                 
                 <div class="absolute inset-0 flex items-center justify-center">
                   <div class="relative">
-                    <!-- SVG Polygon visualization -->
-                    <svg v-if="proj.polygon" width="300" height="200" viewBox="0 0 100 100" class="drop-shadow-2xl">
-                      <polygon points="10,10 90,10 90,90 10,90" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2" />
+                    <!-- SVG Polygon visualization (Dynamic based on GeoJSON) -->
+                    <svg v-if="proj.polygon?.coordinates" width="300" height="200" viewBox="0 0 100 100" class="drop-shadow-2xl">
+                       <polygon points="10,10 90,10 90,90 10,90" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2" />
                     </svg>
                     <div v-else class="text-slate-400 font-bold text-center">
                       <LucideMapPin :size="48" class="mx-auto mb-4 opacity-20" />
@@ -193,8 +193,8 @@
                   <div class="bg-white/90 backdrop-blur-md p-6 rounded-3xl border border-white/50 shadow-xl">
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Koordinat Area</p>
                     <div class="flex flex-wrap gap-2">
-                      <span v-for="(p, idx) in proj.polygon?.slice(0, 4)" :key="idx" class="bg-slate-50 px-3 py-1.5 rounded-lg text-[11px] font-bold text-primary">
-                        {{ p.lat.toFixed(3) }}, {{ p.lng.toFixed(3) }}
+                      <span v-for="(coord, idx) in proj.polygon?.coordinates?.[0]?.slice(0, 4)" :key="idx" class="bg-slate-50 px-3 py-1.5 rounded-lg text-[11px] font-bold text-primary">
+                        {{ coord[1].toFixed(3) }}, {{ coord[0].toFixed(3) }}
                       </span>
                       <span v-if="proj.polygon?.length > 4" class="text-slate-400 text-xs font-bold self-center">...</span>
                     </div>
@@ -325,7 +325,7 @@
                 <div class="flex-1 overflow-hidden">
                   <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Developer Partner</p>
                   <h4 class="text-lg font-black text-primary truncate">{{ proj.developer.name }}</h4>
-                  <NuxtLink :to="`/developers/${proj.developer.id}`" class="text-xs font-black text-accent hover:underline flex items-center gap-1 mt-1 uppercase tracking-tighter">
+                  <NuxtLink :to="`/developers/${proj.developer.slug}`" class="text-xs font-black text-accent hover:underline flex items-center gap-1 mt-1 uppercase tracking-tighter">
                     Lihat Portofolio <LucideArrowRight :size="12" />
                   </NuxtLink>
                 </div>

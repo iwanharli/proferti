@@ -148,7 +148,7 @@
             </div>
             <div class="p-10 flex-1 flex flex-col">
               <div class="flex justify-between items-center mb-6">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ p.developer?.name }}</span>
+                <NuxtLink :to="`/developers/${p.developer?.slug}`" class="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-accent transition-colors">{{ p.developer?.name }}</NuxtLink>
                 <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-accent group-hover:bg-accent/10 transition-colors">
                    <LucideCheckCircle :size="18" />
                 </div>

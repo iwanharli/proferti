@@ -283,7 +283,9 @@
             <div class="p-6 overflow-y-auto no-scrollbar space-y-6">
                <div class="flex justify-between items-start">
                   <div>
-                    <p class="text-[9px] font-extrabold text-emerald-700 uppercase tracking-widest mb-1">{{ selectedProject.developer?.name }}</p>
+                    <NuxtLink :to="`/developers/${selectedProject.developer.slug}`" class="text-[9px] font-extrabold text-emerald-700 uppercase tracking-widest mb-1 block hover:underline">
+                      {{ selectedProject.developer?.name }}
+                    </NuxtLink>
                     <h3 class="text-xl font-black text-slate-900 leading-tight">{{ selectedProject.name }}</h3>
                     <p class="text-[10px] font-bold text-slate-400 mt-1 flex items-center gap-1.5 uppercase tracking-wider"><LucideMapPin :size="10" /> {{ selectedProject.location.city }}</p>
                   </div>
@@ -311,7 +313,16 @@
                   <p class="text-[9px] font-bold text-rose-600 leading-relaxed uppercase tracking-wider">Terdeteksi genangan air di sekitar lokasi via Sentinel-1 SAR.</p>
                </div>
 
-               <button class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-slate-900/10">
+               <div class="grid grid-cols-2 gap-3">
+                 <button class="bg-slate-100 text-slate-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-200 transition-all active:scale-95">
+                    <LucideZap :size="14" />
+                 </button>
+                 <NuxtLink :to="`/projects/${selectedProject.slug}`" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-slate-900/10 text-center flex items-center justify-center">
+                    Lihat Detail
+                 </NuxtLink>
+               </div>
+               
+               <button class="w-full border-2 border-slate-900 text-slate-900 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all active:scale-95">
                   Hubungi Developer
                </button>
             </div>
@@ -959,23 +970,14 @@ function updateUserLocationMarker() {
 }
 
 function getProjectCenter(p: any) {
-  try {
-    const coords = typeof p.polygon === 'string' ? JSON.parse(p.polygon) : p.polygon
-    if (!coords || coords.length === 0) return null
-
-    let sumLat = 0, sumLng = 0
-    coords.forEach((c: any) => {
-      sumLat += c.lat
-      sumLng += c.lng
-    })
+  if (p.location?.latitude && p.location?.longitude) {
     return {
-      lng: sumLng / coords.length,
-      lat: sumLat / coords.length,
-      coords
+      lng: p.location.longitude,
+      lat: p.location.latitude,
+      polygon: p.polygon
     }
-  } catch (e) {
-    return null
   }
+  return null
 }
 
 async function focusProject(p: any) {
@@ -1036,18 +1038,17 @@ function updateMapData() {
     const devColor = getDeveloperColor(devName)
 
     // Add to Polygon Features
-    features.push({
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [center.coords.map((c: any) => [c.lng, c.lat])]
-      },
-      properties: { 
-        id: p.id, 
-        name: p.name,
-        color: devColor.hex
-      }
-    })
+    if (p.polygon?.coordinates) {
+      features.push({
+        type: 'Feature',
+        geometry: p.polygon,
+        properties: { 
+          id: p.id, 
+          name: p.name,
+          color: devColor.hex
+        }
+      })
+    }
 
     // Add to Point Features (For Clustering)
     pointFeatures.push({
@@ -1135,13 +1136,16 @@ function updateMapData() {
     }
   }, 'settlement-subdivision-label')
 
-  // Initial render
-  renderProjectMarkers()
+  // Initial render with retry
+  setTimeout(() => renderProjectMarkers(), 100)
+  setTimeout(() => renderProjectMarkers(), 500)
+  setTimeout(() => renderProjectMarkers(), 1000)
 
   // Fit bounds if we have projects
   if (features.length > 0) {
     const bounds = new mapboxgl.LngLatBounds()
     features.forEach(f => {
+      // GeoJSON Polygon coordinates are [lng, lat]
       f.geometry.coordinates[0].forEach((c: any) => bounds.extend(c))
     })
     currentMap.fitBounds(bounds, { padding: 100, duration: 2000 })

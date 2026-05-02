@@ -134,24 +134,28 @@ import {
 import { formatPropertyPrice } from '~/utils/currency'
 
 const route = useRoute()
-const devId = route.params.id
+const slug = computed(() => route.params.slug as string)
 
 const logoError = ref(false)
 
 // Fetch Developer Detail
-const { data: devData } = await useFetch<{ developer: any }>(`/api/developers/${devId}`)
+const { data: devData } = await useFetch<{ developer: any }>(() => `/api/developers/${slug.value}`)
 const dev = computed(() => devData.value?.developer)
 
-// Fetch Developer Projects
+// Fetch Developer Projects (Reactive based on developer ID)
 const { data: projData, pending } = await useFetch<{ projects: any[] }>(`/api/projects`, {
-  query: { developerId: devId, limit: 100 }
+  query: computed(() => ({ 
+    developerId: dev.value?.id, 
+    limit: 100 
+  })),
+  watch: [dev]
 })
 const projects = computed(() => projData.value?.projects || [])
 
 useHead({
-  title: `${dev.value?.name || 'Developer'} - Proferti Elite`,
+  title: computed(() => `${dev.value?.name || 'Developer'} - Proferti Elite`),
   meta: [
-    { name: 'description', content: dev.value?.description || 'Profil developer properti di Proferti' }
+    { name: 'description', content: computed(() => dev.value?.description || 'Profil developer properti di Proferti') }
   ]
 })
 </script>

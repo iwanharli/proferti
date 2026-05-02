@@ -85,7 +85,7 @@
         <NuxtLink 
           v-for="(dev, idx) in filteredDevelopers" 
           :key="dev.id" 
-          :to="`/developers/${dev.id}`"
+          :to="`/developers/${dev.slug}`"
           class="group relative bg-white rounded-[56px] p-14 border border-slate-100 shadow-sm hover:shadow-[0_60px_100px_-30px_rgba(0,0,0,0.08)] hover:-translate-y-5 transition-all duration-700 flex flex-col overflow-hidden"
         >
           <!-- Decorative Background Elements -->
