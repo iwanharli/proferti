@@ -601,10 +601,24 @@ function initMap() {
       // Click Event
       map.value.on('click', 'provinces-fill', async (e) => {
         if (e.features && e.features.length > 0) {
-          const props = e.features[0].properties
-          const provinceName = props?.name || 'Provinsi'
+          const feature = e.features[0]
+          const props = feature.properties
           const provinceKode = props?.kode
           
+          // Calculate bounds for zoom in
+          const coordinates = (feature.geometry as any).coordinates
+          const bounds = new mapboxgl.LngLatBounds()
+          
+          if (feature.geometry.type === 'Polygon') {
+            coordinates[0].forEach((coord: any) => bounds.extend(coord))
+          } else if (feature.geometry.type === 'MultiPolygon') {
+            coordinates.forEach((polygon: any) => {
+              polygon[0].forEach((coord: any) => bounds.extend(coord))
+            })
+          }
+
+          map.value?.fitBounds(bounds, { padding: 50, duration: 1500 })
+
           if (provinceKode) {
             // Fetch cities for this province
             try {
@@ -645,19 +659,21 @@ function initMap() {
                   }
                 })
 
-                // Add popup for city info on click
+                // Click event for city zoom in
                 map.value.on('click', 'cities-fill', (ev) => {
                   if (ev.features && ev.features.length > 0) {
-                    const cProps = ev.features[0].properties
-                    new mapboxgl.Popup({ className: 'elite-popup' })
-                      .setLngLat(ev.lngLat)
-                      .setHTML(`
-                        <div class="p-3 bg-slate-900 text-white rounded-xl border border-white/10 shadow-2xl">
-                          <p class="text-[8px] font-black uppercase tracking-widest text-blue-400 mb-1">Kota / Kabupaten</p>
-                          <h3 class="text-sm font-black">${cProps?.name}</h3>
-                        </div>
-                      `)
-                      .addTo(map.value!)
+                    const cFeature = ev.features[0]
+                    const cCoords = (cFeature.geometry as any).coordinates
+                    const cBounds = new mapboxgl.LngLatBounds()
+                    
+                    if (cFeature.geometry.type === 'Polygon') {
+                      cCoords[0].forEach((coord: any) => cBounds.extend(coord))
+                    } else if (cFeature.geometry.type === 'MultiPolygon') {
+                      cCoords.forEach((polygon: any) => {
+                        polygon[0].forEach((coord: any) => cBounds.extend(coord))
+                      })
+                    }
+                    map.value?.fitBounds(cBounds, { padding: 100, duration: 1500 })
                   }
                 })
               }
@@ -665,19 +681,6 @@ function initMap() {
               console.error('Failed to fetch city GeoJSON', err)
             }
           }
-
-          new mapboxgl.Popup({ className: 'elite-popup' })
-            .setLngLat(e.lngLat)
-            .setHTML(`
-              <div class="p-4 bg-slate-900 text-white rounded-2xl border border-white/10 shadow-2xl">
-                <p class="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1">Wilayah Administrasi</p>
-                <h3 class="text-lg font-black">${provinceName}</h3>
-                <div class="mt-3 pt-3 border-t border-white/5 shadow-sm">
-                   <p class="text-[9px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">Batas kota/kabupaten telah ditampilkan.</p>
-                </div>
-              </div>
-            `)
-            .addTo(map.value!)
         }
       })
     }
