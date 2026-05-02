@@ -42,7 +42,7 @@
                  <div class="flex-1 min-w-0">
                     <p class="text-[10px] font-extrabold text-slate-800 truncate">{{ city.admin_name }}</p>
                     <div class="flex items-center gap-1.5">
-                       <span class="text-[8px] font-bold text-cyan-600">{{ city.total_area_ha.toFixed(1) }} ha</span>
+                       <span class="text-[8px] font-bold text-cyan-600">{{ city.total_area_ha?.toFixed(1) || '0' }} ha</span>
                        <span class="w-1 h-1 rounded-full bg-slate-300"></span>
                        <span class="text-[8px] font-semibold text-slate-400">{{ city.total_detections }} titik</span>
                     </div>
@@ -1122,14 +1122,14 @@ function toggleFloodLayer() {
 
   if (showFloodLayer.value) {
     // Switch to Dark Style for high contrast
-    currentMap.setStyle('mapbox://styles/mapbox/dark-v11')
+    currentMap.setStyle('mapbox://styles/mapbox/dark-v11', { diff: false })
     currentMap.once('style.load', () => {
       addFloodLayer(true) // Fit bounds on first activation
       updateMapData() 
     })
   } else {
     // Switch back to Satellite
-    currentMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12')
+    currentMap.setStyle('mapbox://styles/mapbox/satellite-streets-v12', { diff: false })
     currentMap.once('style.load', () => {
       updateMapData()
     })
@@ -1208,6 +1208,41 @@ let clusterEventsAdded = false;
 function updateMapData() {
   const currentMap = map.value
   if (!currentMap || !mapReady.value) return
+
+  // Ensure Region Layers exist (might be cleared during style diff/rebuild)
+  if (!currentMap.getSource('provinces') && geoData.value) {
+    currentMap.addSource('provinces', {
+      type: 'geojson',
+      data: geoData.value as any,
+      generateId: true
+    })
+    
+    if (!currentMap.getLayer('provinces-fill')) {
+      currentMap.addLayer({
+        id: 'provinces-fill',
+        type: 'fill',
+        source: 'provinces',
+        paint: {
+          'fill-color': '#ef4444',
+          'fill-opacity': 0.01 
+        }
+      })
+    }
+    
+    if (!currentMap.getLayer('provinces-outline')) {
+      currentMap.addLayer({
+        id: 'provinces-outline',
+        type: 'line',
+        source: 'provinces',
+        paint: {
+          'line-color': '#ef4444',
+          'line-width': 1.5,
+          'line-dasharray': [2, 2],
+          'line-opacity': 0.8
+        }
+      })
+    }
+  }
 
   // Clear existing markers
   clearProjectMarkers()
@@ -1364,7 +1399,9 @@ function renderProjectMarkers() {
   if (!currentMap || !mapReady.value) return
 
   const newMarkers: Record<string, mapboxgl.Marker> = {}
-  const queriedFeatures = currentMap.queryRenderedFeatures({ layers: ['cluster-points-trigger'] })
+  const queriedFeatures = currentMap.getLayer('cluster-points-trigger') 
+    ? currentMap.queryRenderedFeatures({ layers: ['cluster-points-trigger'] })
+    : []
 
   queriedFeatures.forEach((f: any) => {
     const coords = (f.geometry as any).coordinates
