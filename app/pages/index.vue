@@ -58,6 +58,8 @@
                         <h4 class="text-3xl font-black text-white tracking-tight mb-2 truncate">{{ slide.title }}</h4>
                         <div class="flex items-center gap-2 text-slate-300 font-bold text-sm">
                           <LucideMapPin :size="14" class="text-accent shrink-0" /> {{ slide.location }}
+                          <span v-if="slide.units > 0" class="text-white/20 mx-1">•</span>
+                          <span v-if="slide.units > 0" class="flex items-center gap-1.5"><LucideHome :size="14" class="text-accent shrink-0" /> {{ slide.units }} Tipe Unit</span>
                         </div>
                       </div>
                       <div class="bg-accent text-white px-6 py-4 rounded-2xl font-black text-sm shadow-glow shrink-0">
@@ -253,7 +255,7 @@
 import {
   LucideSearch, LucideMapPin, LucideArrowRight,
   LucideMap, LucideBuilding, LucideShieldCheck, LucideGem,
-  LucideChevronDown, LucideDollarSign, LucideArrowUpRight
+  LucideChevronDown, LucideDollarSign, LucideArrowUpRight, LucideHome
 } from 'lucide-vue-next'
 import { formatPropertyPrice } from '~/utils/currency'
 
@@ -311,7 +313,8 @@ const slides = computed(() => {
         label: 'Sedang Memuat',
         title: 'Memuat Data...',
         location: 'Indonesia',
-        price: '-'
+        price: '-',
+        units: 0
       }
     ]
   }
@@ -320,7 +323,8 @@ const slides = computed(() => {
     label: p.type || 'Proyek Baru',
     title: p.name,
     location: p.location?.city || 'Indonesia',
-    price: formatPropertyPrice(p.startPrice)
+    price: formatPropertyPrice(p.startPrice),
+    units: p.unitTypesCount || 0
   }))
 })
 
