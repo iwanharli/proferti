@@ -5,25 +5,10 @@
     <!-- Satellite Intelligence HUD (Right: Satellite & Flood) -->
     <div class="fixed top-28 right-8 z-[100] animate-fade-in">
       <div class="bg-white/70 backdrop-blur-2xl border border-white/40 p-2 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] flex items-center gap-2">
-        <button @click="toggleSatelliteLayer" class="flex items-center gap-2 rounded-xl px-4 py-2.5 transition-all border active:scale-95" :class="showSatelliteLayer ? 'bg-violet-100 text-violet-700 border-violet-200' : 'bg-black/[0.04] text-slate-600 border-black/[0.08] hover:bg-black/[0.08] hover:text-slate-900'">
-          <LucideRocket :size="13" />
-          <span class="text-[10px] font-extrabold uppercase tracking-[0.15em]">{{ showSatelliteLayer ? 'Orbit On' : 'Satelit' }}</span>
-        </button>
-        <button @click="toggleFloodLayer" class="flex items-center gap-2 rounded-xl px-4 py-2.5 transition-all border active:scale-95" :class="showFloodLayer ? 'bg-cyan-100 text-cyan-700 border-cyan-200' : 'bg-black/[0.04] text-slate-600 border-black/[0.08] hover:bg-black/[0.08] hover:text-slate-900'">
+<button @click="toggleFloodLayer" class="flex items-center gap-2 rounded-xl px-4 py-2.5 transition-all border active:scale-95" :class="showFloodLayer ? 'bg-cyan-100 text-cyan-700 border-cyan-200' : 'bg-black/[0.04] text-slate-600 border-black/[0.08] hover:bg-black/[0.08] hover:text-slate-900'">
           <LucideWaves :size="13" />
           <span class="text-[10px] font-extrabold uppercase tracking-[0.15em]">{{ showFloodLayer ? 'Flood On' : 'Banjir' }}</span>
         </button>
-        <div v-if="showFloodLayer" class="flex items-center bg-black/[0.04] rounded-xl border border-black/[0.08] ml-1 animate-fade-in">
-          <div class="flex flex-col px-3 py-1.5">
-            <span class="text-[7px] font-black text-slate-500 uppercase tracking-wider">From</span>
-            <input v-model="startDate" type="date" class="bg-transparent text-[10px] font-bold text-slate-800 outline-none cursor-pointer" />
-          </div>
-          <div class="w-px h-5 bg-black/[0.12]"></div>
-          <div class="flex flex-col px-3 py-1.5">
-            <span class="text-[7px] font-black text-slate-500 uppercase tracking-wider">To</span>
-            <input v-model="endDate" type="date" class="bg-transparent text-[10px] font-bold text-slate-800 outline-none cursor-pointer" />
-          </div>
-        </div>
       </div>
     </div>
     <!-- Top 5 Flood Cities (Dynamic based on Date) -->
@@ -72,10 +57,6 @@
               <div class="w-4 h-4 rounded-md bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.6)]"></div>
               <p class="text-[8px] font-black text-white uppercase tracking-widest">Observed Flood</p>
             </div>
-            <div class="flex items-center gap-3">
-              <div class="w-4 h-4 rounded-md bg-slate-800 border border-slate-700"></div>
-              <p class="text-[8px] font-black text-white uppercase tracking-widest">Exclusion Area</p>
-            </div>
           </div>
         </div>
       </Transition>
@@ -88,7 +69,7 @@
         </div>
         <div class="w-px h-4 bg-slate-200"></div>
         <div class="flex items-center gap-3">
-          <div class="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[8px] font-black text-emerald-600 shadow-sm">12</div>
+          <div class="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[8px] font-black text-emerald-600 shadow-sm">{{ clusterCount }}</div>
           <span class="text-[9px] font-black text-slate-700 uppercase tracking-widest">Clusters</span>
         </div>
       </div>
@@ -267,79 +248,103 @@
        leave-from-class="translate-y-0 opacity-100 scale-100"
        leave-to-class="translate-y-20 opacity-0 scale-95"
      >
-        <div v-if="selectedProject" class="fixed bottom-12 right-8 w-[400px] z-[200]">
-          <div class="bg-white/80 backdrop-blur-3xl rounded-[40px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] border border-white/40 overflow-hidden flex flex-col group/card max-h-[70vh]">
+        <div v-if="selectedProject" class="fixed bottom-6 right-4 sm:bottom-12 sm:right-8 w-[min(400px,calc(100vw-2rem))] z-[200]">
+          <div class="bg-white/90 backdrop-blur-3xl rounded-3xl shadow-[0_24px_60px_-12px_rgba(0,0,0,0.35)] border border-white/60 overflow-hidden flex flex-col max-h-[80vh]">
+
             <!-- Header Image -->
-            <div class="relative h-48 shrink-0 overflow-hidden bg-slate-100">
-               <img :src="selectedProject.image || 'https://www.dummyimg.in/placeholder?width=1200&height=800'" class="w-full h-full object-cover" />
-               <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-               <button @click="selectedProject = null" class="absolute top-4 right-4 w-8 h-8 bg-black/20 backdrop-blur-xl rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all border border-white/20"><LucideX :size="14" /></button>
-               <div class="absolute bottom-4 left-6">
-                  <span class="bg-emerald-500 text-white px-2.5 py-1 rounded-md text-[7px] font-black uppercase tracking-widest">{{ selectedProject.type || 'Eksklusif' }}</span>
-               </div>
+            <div class="relative h-44 shrink-0 overflow-hidden bg-slate-200">
+              <img
+                :src="selectedProject.image || 'https://www.dummyimg.in/placeholder?width=1200&height=800'"
+                class="w-full h-full object-cover"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
+
+              <!-- Close -->
+              <button
+                @click="selectedProject = null"
+                class="absolute top-3 right-3 w-8 h-8 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/60 transition-all border border-white/20"
+              >
+                <LucideX :size="13" />
+              </button>
+
+              <!-- Type badge + Flood badge overlaid on image bottom -->
+              <div class="absolute bottom-3 left-4 right-4 flex items-end justify-between">
+                <span class="bg-white/20 backdrop-blur-md text-white px-2.5 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest border border-white/20">
+                  {{ selectedProject.type || 'Properti' }}
+                </span>
+                <span v-if="selectedProjectFlood" class="px-2.5 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest border backdrop-blur-md"
+                  :class="selectedProjectFlood.status === 'flood_detected'
+                    ? 'bg-rose-500/80 text-white border-rose-400/40'
+                    : 'bg-emerald-500/80 text-white border-emerald-400/40'">
+                  {{ selectedProjectFlood.status === 'flood_detected' ? '⚡ Flood Risk' : '✓ Aman Banjir' }}
+                </span>
+              </div>
             </div>
 
             <!-- Content -->
-            <div class="p-6 overflow-y-auto no-scrollbar space-y-6">
-               <div class="flex justify-between items-start">
-                  <div>
-                    <NuxtLink :to="`/developers/${selectedProject.developer.slug}`" class="text-[9px] font-extrabold text-emerald-700 uppercase tracking-widest mb-1 block hover:underline">
-                      {{ selectedProject.developer?.name }}
-                    </NuxtLink>
-                    <h3 class="text-xl font-black text-slate-900 leading-tight">{{ selectedProject.name }}</h3>
-                    <p class="text-[10px] font-bold text-slate-400 mt-1 flex items-center gap-1.5 uppercase tracking-wider"><LucideMapPin :size="10" /> {{ selectedProject.location.city }}</p>
-                  </div>
-                  <div v-if="selectedProjectFlood" class="flex flex-col items-end gap-1">
-                     <span class="text-[7px] font-black text-slate-400 uppercase tracking-widest">Flood Risk</span>
-                     <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border" :class="selectedProjectFlood.status === 'flood_detected' ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-emerald-50 text-emerald-500 border-emerald-100'">
-                        {{ selectedProjectFlood.status === 'flood_detected' ? 'Warning' : 'Low' }}
-                     </span>
-                  </div>
-               </div>
+            <div class="p-5 overflow-y-auto no-scrollbar space-y-4">
 
-               <div class="grid grid-cols-2 gap-3">
-                  <div class="bg-black/[0.03] p-3.5 rounded-2xl border border-black/[0.05]">
-                    <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Investment</p>
-                    <p class="text-[13px] font-black text-slate-900">{{ formatPropertyPrice(selectedProject.startPrice) }}</p>
-                  </div>
-                  <div class="bg-black/[0.03] p-3.5 rounded-2xl border border-black/[0.05]">
-                    <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Units</p>
-                    <p class="text-[13px] font-black text-slate-900">{{ selectedProject.units_count || '12' }} Units</p>
-                  </div>
-               </div>
+              <!-- Title block -->
+              <div>
+                <NuxtLink
+                  :to="`/developers/${selectedProject.developer.slug}`"
+                  class="text-[8px] font-black text-emerald-600 uppercase tracking-[0.18em] mb-1 block hover:underline"
+                >
+                  {{ selectedProject.developer?.name }}
+                </NuxtLink>
+                <h3 class="text-[17px] font-black text-slate-900 leading-snug">{{ selectedProject.name }}</h3>
+                <p class="text-[9px] font-bold text-slate-400 mt-1 flex items-center gap-1.5 uppercase tracking-wider">
+                  <LucideMapPin :size="9" /> {{ selectedProject.location.city }}
+                </p>
+              </div>
 
-               <div v-if="selectedProjectFlood?.status === 'flood_detected'" class="bg-rose-50 p-4 rounded-2xl border border-rose-100/50 flex items-start gap-3">
-                  <LucideWaves class="text-rose-500 shrink-0" :size="16" />
-                  <p class="text-[9px] font-bold text-rose-600 leading-relaxed uppercase tracking-wider">Terdeteksi genangan air di sekitar lokasi via Sentinel-1 SAR.</p>
-               </div>
+              <!-- Stats grid -->
+              <div class="grid grid-cols-2 gap-2">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Harga Mulai</p>
+                  <p class="text-[14px] font-black text-slate-900 leading-none">{{ formatPropertyPrice(selectedProject.startPrice) }}</p>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                  <p class="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Tipe Unit</p>
+                  <p class="text-[14px] font-black text-slate-900 leading-none">
+                    {{ selectedProject.unitTypesCount ? selectedProject.unitTypesCount + ' Tipe' : '—' }}
+                  </p>
+                </div>
+              </div>
 
-               <div class="grid grid-cols-2 gap-3">
-                 <button class="bg-slate-100 text-slate-400 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-200 transition-all active:scale-95">
-                    <LucideZap :size="14" />
-                 </button>
-                 <NuxtLink :to="`/projects/${selectedProject.slug}`" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all active:scale-95 shadow-xl shadow-slate-900/10 text-center flex items-center justify-center">
-                    Lihat Detail
-                 </NuxtLink>
-               </div>
-               
-               <button class="w-full border-2 border-slate-900 text-slate-900 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 hover:text-white transition-all active:scale-95">
+              <!-- Flood alert bar -->
+              <div v-if="selectedProjectFlood?.status === 'flood_detected'" class="bg-rose-50 px-3.5 py-3 rounded-xl border border-rose-100 flex items-center gap-2.5">
+                <LucideWaves class="text-rose-500 shrink-0" :size="13" />
+                <p class="text-[9px] font-bold text-rose-600 leading-relaxed">Terdeteksi genangan di sekitar lokasi via Sentinel-1 SAR.</p>
+              </div>
+
+              <!-- CTAs -->
+              <div class="flex flex-col gap-2 pt-1">
+                <NuxtLink
+                  :to="`/projects/${selectedProject.slug}`"
+                  class="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all active:scale-[0.98] shadow-md text-center flex items-center justify-center gap-2"
+                >
+                  <LucideChevronRight :size="13" />
+                  Lihat Detail
+                </NuxtLink>
+                <button class="w-full bg-slate-100 text-slate-700 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-200 transition-all active:scale-[0.98]">
                   Hubungi Developer
-               </button>
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
-     </Transition>n>
+     </Transition>
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { 
-  LucideSearch, LucideMapPin, LucideDollarSign, 
-  LucideArrowRight, LucideBuilding, LucideX, LucideLayoutGrid,
-  LucideLocate, LucideChevronLeft, LucideChevronRight,
-  LucideLayoutList, LucideSlidersHorizontal, LucideWaves, LucideRocket,
-  LucideZap, LucideShieldCheck, LucideClock
+import {
+  LucideSearch, LucideMapPin,
+  LucideX, LucideLocate, LucideChevronRight,
+  LucideLayoutList, LucideSlidersHorizontal, LucideWaves, LucideRocket
 } from 'lucide-vue-next'
 import { formatPropertyPrice } from '~/utils/currency'
 import mapboxgl from 'mapbox-gl'
@@ -366,20 +371,14 @@ const mapReady = ref(false)
 const selectedProject = ref<any>(null)
 const selectedProjectFlood = ref<any>(null)
 
-// Date Range Filter (Default 2 weeks back)
-const today = new Date('2026-05-02') // Use static date based on simulation
-const twoWeeksAgo = new Date(today)
-twoWeeksAgo.setDate(today.getDate() - 14)
+// Rentang data banjir: 1 tahun ke belakang (fixed, tanpa UI filter)
+const today = new Date()
+const oneYearAgo = new Date(today)
+oneYearAgo.setFullYear(today.getFullYear() - 1)
 
-const startDate = ref(twoWeeksAgo.toISOString().split('T')[0])
+const startDate = ref(oneYearAgo.toISOString().split('T')[0])
 const endDate = ref(today.toISOString().split('T')[0])
 
-// Watch dates to refresh map
-watch([startDate, endDate], () => {
-  if (showFloodLayer.value) {
-    addFloodLayer()
-  }
-})
 
 const suggestedCity = ref('')
 const { data: locData } = await useFetch<{ locations: any[] }>('/api/locations')
@@ -404,8 +403,6 @@ const { data: payload, pending, refresh } = await useFetch<any>('/api/projects',
 
 const showFloodLayer = ref(false)
 const showSatelliteLayer = ref(false)
-// No more massive GeoJSON fetch!
-const floodData = ref({ features: [] }) 
 const { data: satelliteData } = await useFetch('/api/gfm/scenes/geojson')
 const { data: riskSummaryData } = await useFetch<any[]>('/api/gfm/risk-summary', {
   query: computed(() => ({
@@ -425,21 +422,6 @@ const { data: geoData } = await useFetch('/api/regions/geojson')
 
 const projects = computed(() => payload.value?.projects || [])
 
-function getProjectRisk(p: any) {
-  if (!p || !p.location || !p.location.city || !riskSummaryData.value) return null
-  const city = p.location.city.toLowerCase()
-  return riskSummaryData.value.find((r: any) => 
-    r.admin_level === 'city' && r.admin_name && r.admin_name.toLowerCase().includes(city)
-  )
-}
-
-function getRiskBadgeClass(risk: any) {
-  if (!risk || typeof risk.risk_score !== 'number') return 'bg-slate-500/20 text-slate-400'
-  if (risk.risk_score > 5) return 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-  if (risk.risk_score > 1) return 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-  return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-}
-
 // Group projects by developer
 const groupedProjects = computed(() => {
   const groups: Record<string, any[]> = {}
@@ -451,19 +433,24 @@ const groupedProjects = computed(() => {
   return groups
 })
 
-function getDeveloperColor(devName: string): { bg: string, hex: string, shadow: string, border: string } {
-  const colors: Record<string, { bg: string, hex: string, shadow: string, border: string }> = {
-    'Paramount Land': { bg: 'bg-emerald-500', hex: '#10b981', shadow: 'rgba(16, 185, 129, 0.5)', border: 'border-emerald-400/50' },
-    'Ciputra Group': { bg: 'bg-cyan-500', hex: '#06b6d4', shadow: 'rgba(6, 182, 212, 0.5)', border: 'border-cyan-400/50' },
-    'Pakuwon Group': { bg: 'bg-rose-500', hex: '#f43f5e', shadow: 'rgba(244, 63, 94, 0.5)', border: 'border-rose-400/50' }
+type DevColor = { bg: string; hex: string; shadow: string; border: string }
+
+const DEV_COLOR_PALETTE: DevColor[] = [
+  { bg: 'bg-emerald-500', hex: '#10b981', shadow: 'rgba(16, 185, 129, 0.5)', border: 'border-emerald-400/50' },
+  { bg: 'bg-cyan-500',    hex: '#06b6d4', shadow: 'rgba(6, 182, 212, 0.5)',   border: 'border-cyan-400/50'    },
+  { bg: 'bg-rose-500',    hex: '#f43f5e', shadow: 'rgba(244, 63, 94, 0.5)',   border: 'border-rose-400/50'    },
+  { bg: 'bg-violet-500',  hex: '#8b5cf6', shadow: 'rgba(139, 92, 246, 0.5)', border: 'border-violet-400/50'  },
+  { bg: 'bg-amber-500',   hex: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.5)', border: 'border-amber-400/50'   },
+  { bg: 'bg-pink-500',    hex: '#ec4899', shadow: 'rgba(236, 72, 153, 0.5)', border: 'border-pink-400/50'    },
+]
+
+// djb2 hash → always returns a valid palette entry
+function getDeveloperColor(devName: string): DevColor {
+  let hash = 5381
+  for (let i = 0; i < devName.length; i++) {
+    hash = (hash * 33) ^ devName.charCodeAt(i)
   }
-  
-  return colors[devName] || { 
-    bg: 'bg-amber-500', 
-    hex: '#f59e0b', 
-    shadow: 'rgba(245, 158, 11, 0.5)', 
-    border: 'border-amber-400/50' 
-  }
+  return DEV_COLOR_PALETTE[Math.abs(hash) % DEV_COLOR_PALETTE.length] as DevColor
 }
 
 // Track expanded/collapsed states
@@ -775,112 +762,81 @@ function initMap() {
     rotateGlobe()
   })
 
-  // Global click handler (Cleanup: removed regional summary to focus on projects)
-  map.value.on('click', (e) => {
+  // Global click handler: dismiss any open popups
+  map.value.on('click', () => {
     const popups = document.getElementsByClassName('mapboxgl-popup')
     for (const p of popups) p.remove()
   })
 }
 
 let userInteracting = false
+let globeAnimFrame: number | null = null
 
 function rotateGlobe() {
   const currentMap = map.value
   if (!currentMap || userInteracting) {
-    requestAnimationFrame(rotateGlobe)
+    globeAnimFrame = requestAnimationFrame(rotateGlobe)
     return
   }
-  
   const zoom = currentMap.getZoom()
-  if (zoom < 4) { // Only rotate when zoomed out
+  if (zoom < 4) {
     const center = currentMap.getCenter()
-    center.lng += 0.05 // Subtle rotation
+    center.lng += 0.05
     currentMap.setCenter(center)
   }
-  requestAnimationFrame(rotateGlobe)
+  globeAnimFrame = requestAnimationFrame(rotateGlobe)
 }
 
-function addFloodLayer(shouldFit = false) {
+function addFloodLayer() {
   const currentMap = map.value
   if (!currentMap || !mapReady.value) return
 
+  const tileUrl = `${window.location.origin}/api/flood-mvt/{z}/{x}/{y}.pbf?start=${startDate.value}&end=${endDate.value}`
+
   if (currentMap.getSource('flood-zones')) {
-    currentMap.setLayoutProperty('flood-fill', 'visibility', 'visible')
+    currentMap.setLayoutProperty('flood-fill',   'visibility', 'visible')
+    currentMap.setLayoutProperty('flood-glow',   'visibility', 'visible')
     currentMap.setLayoutProperty('flood-outline', 'visibility', 'visible')
-    currentMap.setLayoutProperty('flood-glow', 'visibility', 'visible')
-    currentMap.setLayoutProperty('exclusion-fill', 'visibility', 'visible')
-    // Fix: Force update MVT tiles if dates changed
-    const newTiles = [window.location.origin + `/api/flood-mvt/{z}/{x}/{y}.pbf?start=${startDate.value}&end=${endDate.value}&_t=${Date.now()}`]
     const source = currentMap.getSource('flood-zones') as any
-    if (source && typeof source.setTiles === 'function') {
-      source.setTiles(newTiles)
-    }
+    source?.setTiles?.([tileUrl])
     return
   }
 
+  // Tiles are cached by the browser (Cache-Control: max-age=600 from backend).
+  // No _t= cache-buster so the browser can reuse tiles across map movements.
   currentMap.addSource('flood-zones', {
     type: 'vector',
-    tiles: [window.location.origin + `/api/flood-mvt/{z}/{x}/{y}.pbf?start=${startDate.value}&end=${endDate.value}&_t=${Date.now()}`],
+    tiles: [tileUrl],
     minzoom: 0,
     maxzoom: 22
   })
 
-  // Exclusion Mask (Dark Translucent for Radar Shadow/Urban Canyons)
-  currentMap.addLayer({
-    id: 'exclusion-fill',
-    type: 'fill',
-    source: 'flood-zones',
-    'source-layer': 'exclusion_layer',
-    paint: {
-      'fill-color': '#0f172a', // Deep Navy/Slate
-      'fill-opacity': 0.5,
-      'fill-outline-color': '#334155'
-    }
-  })
-
-  // Flood Glow (Blurred background for "Heat" feel)
+  // Flood glow (soft cyan halo)
   currentMap.addLayer({
     id: 'flood-glow',
     type: 'fill',
     source: 'flood-zones',
     'source-layer': 'flood_layer',
-    paint: {
-      'fill-color': '#00ffff',
-      'fill-opacity': 0.3,
-      'fill-translate': [0, 0]
-    }
+    paint: { 'fill-color': '#00ffff', 'fill-opacity': 0.25 }
   })
 
-  // Add blur effect via filter if supported, or just use opacity layers
-  
-  // Flood Fill (Cinematic Cyan - Higher Opacity)
+  // Flood fill (solid cyan)
   currentMap.addLayer({
     id: 'flood-fill',
     type: 'fill',
     source: 'flood-zones',
     'source-layer': 'flood_layer',
-    paint: {
-      'fill-color': '#00ffff', // Electric Cyan
-      'fill-opacity': 0.8,
-      'fill-outline-color': '#ffffff'
-    }
+    paint: { 'fill-color': '#00ffff', 'fill-opacity': 0.75 }
   })
 
-  // Flood Outline (Glowing White/Cyan)
+  // Flood outline (glowing white edge)
   currentMap.addLayer({
     id: 'flood-outline',
     type: 'line',
     source: 'flood-zones',
     'source-layer': 'flood_layer',
-    paint: {
-      'line-color': '#ffffff',
-      'line-width': 2,
-      'line-opacity': 1
-    }
+    paint: { 'line-color': '#ffffff', 'line-width': 1.5, 'line-opacity': 0.9 }
   })
-
-  // Note: fitBounds with MVT is slightly different since we don't have the full GeoJSON in memory.
-  // For now, we'll keep the previous behavior or use a specific viewpoint.
 }
 
 let animationFrames: number[] = []
@@ -1018,8 +974,6 @@ function addSatelliteLayer() {
   // Ambil 2 titik terjauh untuk simulasi jalur orbit
   const features = (satelliteData.value as any).features
   if (features && features.length > 1) {
-    const sorted = [...features].sort((a, b) => b.properties.acquisition_time.localeCompare(a.properties.acquisition_time))
-    
     // Tampilkan hanya 1 satelit agar akurat sesuai dunia nyata (Sentinel-1)
     const numSats = 1
     
@@ -1124,7 +1078,7 @@ function toggleFloodLayer() {
     // Switch to Dark Style for high contrast
     currentMap.setStyle('mapbox://styles/mapbox/dark-v11', { diff: false } as any)
     currentMap.once('style.load', () => {
-      addFloodLayer(true) // Fit bounds on first activation
+      addFloodLayer()
       updateMapData() 
     })
   } else {
@@ -1343,7 +1297,14 @@ function updateMapData() {
     }
   })
 
-  // Add Fill Layer
+  // Insert polygon layers below labels if the label layer exists in the current style.
+  // dark-v11 and satellite-streets-v12 use different layer IDs — fallback to top of stack.
+  const beforeLabel = currentMap.getLayer('settlement-subdivision-label')
+    ? 'settlement-subdivision-label'
+    : currentMap.getLayer('settlement-label')
+      ? 'settlement-label'
+      : undefined
+
   currentMap.addLayer({
     id: 'projects-fill',
     type: 'fill',
@@ -1352,9 +1313,8 @@ function updateMapData() {
       'fill-color': ['get', 'color'],
       'fill-opacity': 0.4
     }
-  }, 'settlement-subdivision-label')
+  }, beforeLabel)
 
-  // Add Outline Layer
   currentMap.addLayer({
     id: 'projects-outline',
     type: 'line',
@@ -1362,14 +1322,12 @@ function updateMapData() {
     paint: {
       'line-color': ['get', 'color'],
       'line-width': 2.5,
-      'line-opacity': 0.8
+      'line-opacity': 0.9
     }
-  }, 'settlement-subdivision-label')
+  }, beforeLabel)
 
-  // Initial render with retry
-  setTimeout(() => renderProjectMarkers(), 100)
-  setTimeout(() => renderProjectMarkers(), 500)
-  setTimeout(() => renderProjectMarkers(), 1000)
+  // Initial render after source data is likely loaded
+  setTimeout(() => renderProjectMarkers(), 200)
 
   // Fit bounds if we have projects
   if (features.length > 0) {
@@ -1383,6 +1341,7 @@ function updateMapData() {
 }
 
 const markersOnScreen = ref<Record<string, mapboxgl.Marker>>({})
+const clusterCount = ref(0)
 
 function clearProjectMarkers() {
   markers.value.forEach(m => m.remove())
@@ -1399,9 +1358,11 @@ function renderProjectMarkers() {
   if (!currentMap || !mapReady.value) return
 
   const newMarkers: Record<string, mapboxgl.Marker> = {}
-  const queriedFeatures = currentMap.getLayer('cluster-points-trigger') 
+  const queriedFeatures = currentMap.getLayer('cluster-points-trigger')
     ? currentMap.queryRenderedFeatures({ layers: ['cluster-points-trigger'] })
     : []
+
+  clusterCount.value = queriedFeatures.filter((f: any) => f.properties?.cluster).length
 
   queriedFeatures.forEach((f: any) => {
     const coords = (f.geometry as any).coordinates
@@ -1411,8 +1372,9 @@ function renderProjectMarkers() {
     const project = typeof props.project === 'string' ? JSON.parse(props.project) : props.project
     const id = props.cluster ? `cluster-${props.cluster_id}` : `point-${project.id}`
 
-    if (markersOnScreen.value[id]) {
-      newMarkers[id] = markersOnScreen.value[id]
+    const existing = markersOnScreen.value[id]
+    if (existing) {
+      newMarkers[id] = existing
       return
     }
 
@@ -1531,19 +1493,6 @@ async function detectLocation() {
   }
 }
 
-function focusUserLocation() {
-  if (userLocation.value && map.value) {
-    map.value.flyTo({
-      center: [userLocation.value.lng, userLocation.value.lat],
-      zoom: 16,
-      pitch: 45,
-      duration: 3000,
-      essential: true
-    })
-  } else {
-    detectLocation()
-  }
-}
 
 function useSuggestedCity() {
   filters.city = suggestedCity.value
@@ -1564,6 +1513,16 @@ function debouncedSearch() {
 onMounted(() => {
   initMap()
   detectLocation()
+})
+
+onUnmounted(() => {
+  if (globeAnimFrame !== null) cancelAnimationFrame(globeAnimFrame)
+  animationFrames.forEach(f => cancelAnimationFrame(f))
+  animationFrames = []
+  satelliteMarkers.value.forEach(m => m.remove())
+  markers.value.forEach(m => m.remove())
+  for (const id in markersOnScreen.value) markersOnScreen.value[id]?.remove()
+  map.value?.remove()
 })
 
 useHead({ title: 'Peta Proyek Hunian - Proferti' })

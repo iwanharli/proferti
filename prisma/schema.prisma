@@ -7,67 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Auth.js Models
-model Account {
-  id                 String  @id @default(uuid()) @db.Uuid
-  userId             String  @map("user_id") @db.Uuid
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("na_accounts")
-}
-
-model Session {
-  id           String   @id @default(uuid()) @db.Uuid
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id") @db.Uuid
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("na_sessions")
-}
+// ── Auth / User ────────────────────────────────────────────────────────────────
+// Tabel dikelola oleh Go migrations (froferti-be).
+// Prisma hanya digunakan untuk generate types — JANGAN jalankan prisma migrate.
 
 model User {
-  id            String    @id @default(uuid()) @db.Uuid
+  id            String     @id @default(uuid()) @db.Uuid
   name          String?
-  email         String?   @unique
-  password      String?
-  emailVerified DateTime? @map("email_verified")
+  email         String?    @unique
+  password      String?    // nullable — OAuth users tidak punya password
+  emailVerified DateTime?  @map("email_verified")
   image         String?
-  developer     Developer?
-  accounts      Account[]
-  sessions      Session[]
-  
-  // Custom Proferti Fields
-  role          String    @default("developer")
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  role          String     @default("developer")
+
+  // FK ke t_developers disimpan di sisi t_users (sesuai Go migration)
+  developerId   String?    @unique @map("developer_id") @db.Uuid
+  developer     Developer? @relation(fields: [developerId], references: [id])
+
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt      @map("updated_at")
 
   @@map("t_users")
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+// ── Developer ──────────────────────────────────────────────────────────────────
 
-  @@unique([identifier, token])
-  @@map("na_verification_tokens")
-}
-
-
-// Proferti Business Models
 model Developer {
   id          String    @id @default(uuid()) @db.Uuid
   name        String    @map("company_name")
@@ -76,36 +40,46 @@ model Developer {
   phone       String?
   email       String?
   logo        String?
+  coverImage  String?   @map("cover_image")
+  address     String?
   description String?
   website     String?
-  userId      String    @unique @map("user_id") @db.Uuid
-  user        User      @relation(fields: [userId], references: [id])
-  projects    Project[]
+  regionId    Int?      @map("region_id")
+  status      String    @default("active")
   createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  updatedAt   DateTime  @updatedAt      @map("updated_at")
+
+  user        User?
+  projects    Project[]
 
   @@map("t_developers")
 }
 
+// ── Project ────────────────────────────────────────────────────────────────────
+
 model Project {
-  id          String    @id @default(uuid()) @db.Uuid
-  name        String    @map("project_name")
-  location    String
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String        @map("project_name")
   slug        String
   description String?
-  startPrice  Float     @map("starting_price")
-  promo       String?   @map("promo_text")
+  startPrice  Float         @map("starting_price")
+  promo       String?       @map("promo_text")
   image       String?       @map("cover_image")
-  status      ProjectStatus @default(AVAILABLE)
+  status      ProjectStatus @default(ACTIVE)
+  featured    Boolean       @default(false)
+  projectType String?       @map("project_type")
+  locationId  String?       @map("location_id") @db.Uuid
   developerId String        @map("developer_id") @db.Uuid
-  developer   Developer @relation(fields: [developerId], references: [id])
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  developer   Developer     @relation(fields: [developerId], references: [id])
   gallery     Gallery[]
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt      @map("updated_at")
 
+  @@unique([developerId, slug])
   @@map("t_projects")
 }
 
+// ── Gallery ────────────────────────────────────────────────────────────────────
 
 model Gallery {
   id        String   @id @default(uuid()) @db.Uuid
@@ -116,12 +90,13 @@ model Gallery {
   sortOrder Int      @default(0) @map("sort_order")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("t_galleries")
+  @@map("t_project_galleries")
 }
 
+// ── Enums ──────────────────────────────────────────────────────────────────────
 
 enum ProjectStatus {
-  AVAILABLE
-  SOLD_OUT
-  COMING_SOON
+  ACTIVE    @map("active")
+  SOLDOUT   @map("soldout")
+  UPCOMING  @map("upcoming")
 }

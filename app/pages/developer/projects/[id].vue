@@ -186,7 +186,7 @@ async function onSaved() {
 async function doDelete() {
   busy.value = true
   try {
-    await $fetch(`/api/projects/${id}`, { method: 'DELETE' })
+    await $fetch(`/api/projects/${id}`, { method: 'DELETE' as any })
     router.push('/developer/dashboard')
   } catch (e: any) {
     alert(e?.data?.error || 'Gagal menghapus')
