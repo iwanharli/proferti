@@ -346,10 +346,14 @@ function goSearch() {
   if (quickFilter.city) query.city = quickFilter.city
   if (quickFilter.price) {
     const [min, max] = quickFilter.price.split('-')
-    const minN = parseInt(min)
-    const maxN = parseInt(max)
-    if (minN > 0) query.minPrice = (minN * 1_000_000).toString()
-    if (maxN < 100000) query.maxPrice = (maxN * 1_000_000).toString()
+    if (min) {
+      const minN = parseInt(min)
+      if (minN > 0) query.minPrice = (minN * 1_000_000).toString()
+    }
+    if (max) {
+      const maxN = parseInt(max)
+      if (maxN > 0 && maxN < 100000) query.maxPrice = (maxN * 1_000_000).toString()
+    }
   }
   router.push({ path: '/projects', query })
 }
