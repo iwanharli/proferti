@@ -42,36 +42,30 @@
     </Transition>
 
     <!-- Centered Legend Group (Bottom Center) -->
-    <div class="fixed bottom-12 left-0 w-full z-[150] pointer-events-none flex flex-col items-center gap-4">
-      
-      <!-- Satellite Intel (Active when Flood is ON) -->
-      <Transition name="slide-up">
-        <div v-if="showFloodLayer" class="pointer-events-auto bg-slate-900/90 backdrop-blur-3xl border border-white/10 p-3.5 px-6 rounded-[28px] shadow-2xl flex items-center gap-8 ring-1 ring-white/5 animate-fade-in-up">
-          <div class="flex items-center gap-3 border-r border-white/10 pr-6">
-            <div class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></div>
-            <h4 class="text-[9px] font-black text-white uppercase tracking-[0.2em]">Satellite Intel</h4>
-          </div>
-          
-          <div class="flex items-center gap-8">
-            <div class="flex items-center gap-3">
-              <div class="w-4 h-4 rounded-md bg-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.6)]"></div>
-              <p class="text-[8px] font-black text-white uppercase tracking-widest">Observed Flood</p>
-            </div>
-          </div>
+    <div class="fixed bottom-12 left-0 w-full z-[150] pointer-events-none flex justify-center">
+      <div class="pointer-events-auto bg-white/90 backdrop-blur-2xl border border-slate-200/60 p-3 px-6 rounded-full shadow-lg flex items-center gap-6 transition-all duration-500">
+        <!-- Projects -->
+        <div class="flex items-center gap-2.5">
+          <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+          <span class="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Proyek Aktif</span>
         </div>
-      </Transition>
+        
+        <div class="w-px h-3 bg-slate-300"></div>
+        
+        <!-- Clusters -->
+        <div class="flex items-center gap-2.5">
+          <div class="px-2 py-0.5 rounded-md bg-emerald-50 text-[10px] font-black text-emerald-600 border border-emerald-100">{{ clusterCount || 0 }}</div>
+          <span class="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Clusters</span>
+        </div>
 
-      <!-- General Projects Legend -->
-      <div class="pointer-events-auto bg-white/80 backdrop-blur-2xl border border-white/40 p-3 px-6 rounded-2xl shadow-xl flex items-center gap-8 animate-fade-in-up">
-        <div class="flex items-center gap-3">
-          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]"></div>
-          <span class="text-[9px] font-black text-slate-700 uppercase tracking-widest">Proyek Aktif</span>
-        </div>
-        <div class="w-px h-4 bg-slate-200"></div>
-        <div class="flex items-center gap-3">
-          <div class="w-5 h-5 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-[8px] font-black text-emerald-600 shadow-sm">{{ clusterCount }}</div>
-          <span class="text-[9px] font-black text-slate-700 uppercase tracking-widest">Clusters</span>
-        </div>
+        <!-- Flood (Conditionally Visible) -->
+        <template v-if="showFloodLayer">
+          <div class="w-px h-3 bg-slate-300"></div>
+          <div class="flex items-center gap-2.5 animate-fade-in">
+            <div class="w-2.5 h-2.5 rounded-sm bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.5)] animate-pulse"></div>
+            <span class="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Area Banjir</span>
+          </div>
+        </template>
       </div>
     </div>
 
