@@ -456,7 +456,7 @@ function getDeveloperColor(devName: string): DevColor {
   if (devColorMap.has(devName)) {
     return devColorMap.get(devName)!
   }
-  const color = DEV_COLOR_PALETTE[colorIndex % DEV_COLOR_PALETTE.length]
+  const color = DEV_COLOR_PALETTE[colorIndex % DEV_COLOR_PALETTE.length] as DevColor
   devColorMap.set(devName, color)
   colorIndex++
   return color
