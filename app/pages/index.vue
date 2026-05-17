@@ -283,46 +283,6 @@ const features = [
   }
 ]
 
-// Hero Slider
-const currentSlide = ref(0)
-const slides = [
-  {
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2000',
-    label: 'Mahakarya Elite',
-    title: 'The Elite Pavilion',
-    location: 'BSD City, Tangerang',
-    price: 'Mulai 1.2 M'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1600607687940-4e2a09695d51?auto=format&fit=crop&q=80&w=2000',
-    label: 'Modern Skyline',
-    title: 'Skyline Residence',
-    location: 'SCBD, Jakarta Selatan',
-    price: 'Mulai 3.5 M'
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=2000',
-    label: 'Exclusive Villa',
-    title: 'Cliff Mansion',
-    location: 'Uluwatu, Bali',
-    price: 'Mulai 8.9 M'
-  }
-]
-
-let slideTimer: ReturnType<typeof setInterval> | null = null
-
-function pauseSlider() {
-  if (slideTimer) { clearInterval(slideTimer); slideTimer = null }
-}
-function resumeSlider() {
-  slideTimer = setInterval(() => {
-    currentSlide.value = (currentSlide.value + 1) % slides.length
-  }, 6000)
-}
-
-onMounted(() => resumeSlider())
-onUnmounted(() => pauseSlider())
-
 // Data fetching
 const [{ data: devPayload }, { data: locData }, { data: projectPayload }] = await Promise.all([
   useFetch<{ developers: any[] }>('/api/developers'),
@@ -340,6 +300,43 @@ const cities = computed(() => {
 })
 
 const featuredProjects = computed(() => projectPayload.value?.projects || [])
+
+// Hero Slider
+const currentSlide = ref(0)
+const slides = computed(() => {
+  if (featuredProjects.value.length === 0) {
+    return [
+      {
+        image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2000',
+        label: 'Sedang Memuat',
+        title: 'Memuat Data...',
+        location: 'Indonesia',
+        price: '-'
+      }
+    ]
+  }
+  return featuredProjects.value.slice(0, 3).map((p: any) => ({
+    image: p.image || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=2000',
+    label: p.type || 'Proyek Baru',
+    title: p.name,
+    location: p.location?.city || 'Indonesia',
+    price: formatPropertyPrice(p.startPrice)
+  }))
+})
+
+let slideTimer: ReturnType<typeof setInterval> | null = null
+
+function pauseSlider() {
+  if (slideTimer) { clearInterval(slideTimer); slideTimer = null }
+}
+function resumeSlider() {
+  slideTimer = setInterval(() => {
+    currentSlide.value = (currentSlide.value + 1) % slides.value.length
+  }, 6000)
+}
+
+onMounted(() => resumeSlider())
+onUnmounted(() => pauseSlider())
 
 function goSearch() {
   const query: Record<string, string> = {}
