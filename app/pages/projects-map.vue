@@ -436,15 +436,30 @@ const DEV_COLOR_PALETTE: DevColor[] = [
   { bg: 'bg-violet-500',  hex: '#8b5cf6', shadow: 'rgba(139, 92, 246, 0.5)', border: 'border-violet-400/50'  },
   { bg: 'bg-amber-500',   hex: '#f59e0b', shadow: 'rgba(245, 158, 11, 0.5)', border: 'border-amber-400/50'   },
   { bg: 'bg-pink-500',    hex: '#ec4899', shadow: 'rgba(236, 72, 153, 0.5)', border: 'border-pink-400/50'    },
+  { bg: 'bg-blue-500',    hex: '#3b82f6', shadow: 'rgba(59, 130, 246, 0.5)',  border: 'border-blue-400/50'    },
+  { bg: 'bg-indigo-500',  hex: '#6366f1', shadow: 'rgba(99, 102, 241, 0.5)',  border: 'border-indigo-400/50'  },
+  { bg: 'bg-fuchsia-500', hex: '#d946ef', shadow: 'rgba(217, 70, 239, 0.5)',  border: 'border-fuchsia-400/50' },
+  { bg: 'bg-orange-500',  hex: '#f97316', shadow: 'rgba(249, 115, 22, 0.5)',  border: 'border-orange-400/50'  },
+  { bg: 'bg-lime-500',    hex: '#84cc16', shadow: 'rgba(132, 204, 22, 0.5)',  border: 'border-lime-400/50'    },
+  { bg: 'bg-teal-500',    hex: '#14b8a6', shadow: 'rgba(20, 184, 166, 0.5)',  border: 'border-teal-400/50'    },
+  { bg: 'bg-sky-500',     hex: '#0ea5e9', shadow: 'rgba(14, 165, 233, 0.5)',  border: 'border-sky-400/50'     },
+  { bg: 'bg-red-500',     hex: '#ef4444', shadow: 'rgba(239, 68, 68, 0.5)',   border: 'border-red-400/50'     },
+  { bg: 'bg-yellow-500',  hex: '#eab308', shadow: 'rgba(234, 179, 8, 0.5)',   border: 'border-yellow-400/50'  },
+  { bg: 'bg-purple-500',  hex: '#a855f7', shadow: 'rgba(168, 85, 247, 0.5)',  border: 'border-purple-400/50'  },
+  { bg: 'bg-green-500',   hex: '#22c55e', shadow: 'rgba(34, 197, 94, 0.5)',   border: 'border-green-400/50'   },
 ]
 
-// djb2 hash → always returns a valid palette entry
+const devColorMap = new Map<string, DevColor>()
+let colorIndex = 0
+
 function getDeveloperColor(devName: string): DevColor {
-  let hash = 5381
-  for (let i = 0; i < devName.length; i++) {
-    hash = (hash * 33) ^ devName.charCodeAt(i)
+  if (devColorMap.has(devName)) {
+    return devColorMap.get(devName)!
   }
-  return DEV_COLOR_PALETTE[Math.abs(hash) % DEV_COLOR_PALETTE.length] as DevColor
+  const color = DEV_COLOR_PALETTE[colorIndex % DEV_COLOR_PALETTE.length]
+  devColorMap.set(devName, color)
+  colorIndex++
+  return color
 }
 
 // Track expanded/collapsed states
