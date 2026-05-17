@@ -125,7 +125,7 @@
     </section>
 
     <!-- Featured Projects -->
-    <section v-if="featuredProjects.length > 0" class="py-32 bg-white">
+    <section v-if="featuredProjects.length > 0" class="bg-white">
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-16">
           <div>
