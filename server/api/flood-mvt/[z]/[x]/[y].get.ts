@@ -7,9 +7,10 @@ export default defineEventHandler(async (event) => {
   y = y.replace('.pbf', '')
   
   const query = getQuery(event)
+  const BE_URL = process.env.BE_URL || 'http://localhost:8080'
   
   // Forward to Go Backend
-  const backendUrl = `http://localhost:8080/api/flood-mvt/${z}/${x}/${y}.pbf?start=${query.start || ''}&end=${query.end || ''}`
+  const backendUrl = `${BE_URL}/api/flood-mvt/${z}/${x}/${y}.pbf?start=${query.start || ''}&end=${query.end || ''}`
   
   return proxyRequest(event, backendUrl)
 })
